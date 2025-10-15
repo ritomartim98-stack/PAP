@@ -7,41 +7,58 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { Search, SlidersHorizontal, Heart, Eye } from "lucide-react";
 import { motion } from "motion/react";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 
-const motorcycles = [
+interface ShopPageProps {
+  onNavigate: (page: string, motorcycleId?: number) => void;
+}
+
+interface Motorcycle {
+  id: number;
+  name: string;
+  category: string;
+  price: number;
+  year: number;
+  km?: number;
+  horas?: number;
+  image: string;
+  specs: string[];
+  condition: string;
+}
+
+const motorcycles: Motorcycle[] = [
   {
     id: 1,
-    name: "Honda CB 500F",
-    category: "Sport",
-    price: 7500,
-    year: 2021,
-    km: 12000,
-    image: "https://images.unsplash.com/photo-1558980664-10e7170b5df9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzcG9ydCUyMG1vdG9yY3ljbGUlMjBzaG93cm9vbXxlbnwxfHx8fDE3NjAxMTMxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    specs: ["500cc", "47cv", "ABS"],
-    condition: "Seminova"
+    name: "Yamaha Yz 125 2025",
+    category: "motocross",
+    price: 8200,
+    year: 2025,
+    horas: 0,
+    image: "https://cdpcdn.dx1app.com/products/USA/YA/2025/MC/MX/YZ125/50/MONSTER_ENERGY_YAMAHA_RACING_EDITION/2000000001.jpg",
+    specs: ["125cc", "35cv", ],
+    condition: "nova"
   },
   {
     id: 2,
-    name: "Yamaha MT-07",
-    category: "Sport",
-    price: 8200,
-    year: 2022,
-    km: 8500,
-    image: "https://images.unsplash.com/photo-1558980664-10e7170b5df9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzcG9ydCUyMG1vdG9yY3ljbGUlMjBzaG93cm9vbXxlbnwxfHx8fDE3NjAxMTMxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    specs: ["689cc", "75cv", "ABS"],
-    condition: "Seminova"
+    name: "Yamaha YZ125 Monster Energy Edition",
+    category: "Motocross",
+    price: 8500,
+    year: 2025,
+    horas: 0,
+    image: "https://cdpcdn.dx1app.com/products/USA/YA/2025/MC/MX/YZ125_MONSTER_ENERGY_EDITION/50/MONSTER_ENERGY_YAMAHA_RACING_EDITION/2000000001.jpg",
+    specs: ["125cc", "35cv"],
+    condition: "Nova"
   },
   {
     id: 3,
-    name: "Kawasaki Ninja 650",
+    name: "TMAX Tech MAX",
     category: "Sport",
-    price: 9500,
-    year: 2023,
-    km: 3000,
-    image: "https://images.unsplash.com/photo-1558980664-10e7170b5df9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzcG9ydCUyMG1vdG9yY3ljbGUlMjBzaG93cm9vbXxlbnwxfHx8fDE3NjAxMTMxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    specs: ["649cc", "68cv", "ABS", "TCS"],
-    condition: "Como Nova"
+    price: 15700,
+    year: 2025,
+    km: 0,
+    image: "https://cdn2.yamaha-motor.eu/prod/product-assets/2025/XP500ADX/2025-Yamaha-XP500ADX-EU-Ceramic_Grey-360-Degrees-001-03.jpg",
+    specs: ["560cc", "47,6cv", "ABS"],
+    condition: " Nova"
   },
   {
     id: 4,
@@ -72,13 +89,13 @@ const motorcycles = [
     price: 18500,
     year: 2021,
     km: 22000,
-    image: "https://images.unsplash.com/photo-1598808503491-01d81d8f6b0d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0b3VyaW5nJTIwbW90b3JjeWNsZXxlbnwxfHx8fDE3NjAxMTMxNTB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+    image: "https://images.unsplash.com/photo-1558980664-10e7170b5df9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080",
     specs: ["1833cc", "126cv", "DCT", "Airbag", "Navegação"],
     condition: "Seminova"
   }
 ];
 
-export function ShopPage() {
+export function ShopPage({ onNavigate }: ShopPageProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [priceFilter, setPriceFilter] = useState("all");
@@ -147,6 +164,7 @@ export function ShopPage() {
               <SelectContent>
                 <SelectItem value="all">Todas as Categorias</SelectItem>
                 <SelectItem value="Sport">Sport</SelectItem>
+                <SelectItem value="Motocross">Motocross</SelectItem>
                 <SelectItem value="Cruiser">Cruiser</SelectItem>
                 <SelectItem value="Adventure">Adventure</SelectItem>
                 <SelectItem value="Touring">Touring</SelectItem>
@@ -236,7 +254,9 @@ export function ShopPage() {
                         ))}
                       </div>
                       <div className="text-sm text-gray-600">
-                        {moto.km.toLocaleString('pt-PT')} km
+                        {moto.km !== undefined 
+                          ? `${moto.km.toLocaleString('pt-PT')} km` 
+                          : `${moto.horas} horas`}
                       </div>
                       <div className="text-blue-600 text-xl">
                         €{moto.price.toLocaleString('pt-PT')}
@@ -248,7 +268,11 @@ export function ShopPage() {
                     <Button className="flex-1" onClick={() => toast.success("Contactaremos em breve!")}>
                       Contactar
                     </Button>
-                    <Button variant="outline" className="flex-1">
+                    <Button 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => onNavigate("motorcycle-detail", moto.id)}
+                    >
                       Ver Detalhes
                     </Button>
                   </CardFooter>

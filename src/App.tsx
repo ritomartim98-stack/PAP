@@ -4,6 +4,7 @@ import { Footer } from "./components/Footer";
 import { HomePage } from "./pages/HomePage";
 import { ServicesPage } from "./pages/ServicesPage";
 import { ShopPage } from "./pages/ShopPage";
+import { MotorcycleDetailPage } from "./pages/MotorcycleDetailPage";
 import { PartsPage } from "./pages/PartsPage";
 import { BookingPage } from "./pages/BookingPage";
 import { ContactPage } from "./pages/ContactPage";
@@ -11,6 +12,7 @@ import { Toaster } from "./components/ui/sonner";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState("home");
+  const [selectedMotorcycleId, setSelectedMotorcycleId] = useState<number | null>(null);
   const [cartItemsCount, setCartItemsCount] = useState(0);
 
   // Smooth scroll to top when page changes
@@ -18,8 +20,11 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentPage]);
 
-  const handleNavigate = (page: string) => {
+  const handleNavigate = (page: string, motorcycleId?: number) => {
     setCurrentPage(page);
+    if (motorcycleId !== undefined) {
+      setSelectedMotorcycleId(motorcycleId);
+    }
   };
 
   const renderPage = () => {
@@ -29,7 +34,13 @@ export default function App() {
       case "services":
         return <ServicesPage onNavigate={handleNavigate} />;
       case "shop":
-        return <ShopPage />;
+        return <ShopPage onNavigate={handleNavigate} />;
+      case "motorcycle-detail":
+        return selectedMotorcycleId ? (
+          <MotorcycleDetailPage motorcycleId={selectedMotorcycleId} onNavigate={handleNavigate} />
+        ) : (
+          <ShopPage onNavigate={handleNavigate} />
+        );
       case "parts":
         return <PartsPage />;
       case "booking":
