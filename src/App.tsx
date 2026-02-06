@@ -8,12 +8,21 @@ import { MotorcycleDetailPage } from "./pages/MotorcycleDetailPage";
 import { PartsPage } from "./pages/PartsPage";
 import { BookingPage } from "./pages/BookingPage";
 import { ContactPage } from "./pages/ContactPage";
+import LoginPage from "./pages/login";
+import RegisterPage from "./pages/Register";
 import { Toaster } from "./components/ui/sonner";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState("home");
   const [selectedMotorcycleId, setSelectedMotorcycleId] = useState<number | null>(null);
   const [cartItemsCount, setCartItemsCount] = useState(0);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Check login status on mount
+  useEffect(() => {
+    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    setIsLoggedIn(loggedIn);
+  }, []);
 
   // Smooth scroll to top when page changes
   useEffect(() => {
@@ -25,6 +34,12 @@ export default function App() {
     if (motorcycleId !== undefined) {
       setSelectedMotorcycleId(motorcycleId);
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('isLoggedIn');
+    setIsLoggedIn(false);
+    handleNavigate('home');
   };
 
   const renderPage = () => {
@@ -47,6 +62,10 @@ export default function App() {
         return <BookingPage />;
       case "contact":
         return <ContactPage />;
+      case "login":
+        return <LoginPage onNavigate={handleNavigate} onLogin={() => setIsLoggedIn(true)} />;
+      case "register":
+        return <RegisterPage onNavigate={handleNavigate} onRegister={() => setIsLoggedIn(true)} />;
       default:
         return <HomePage onNavigate={handleNavigate} />;
     }
@@ -55,10 +74,12 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col">
       <Toaster />
-      <Header 
-        currentPage={currentPage} 
+      <Header
+        currentPage={currentPage}
         onNavigate={handleNavigate}
         cartItemsCount={cartItemsCount}
+        isLoggedIn={isLoggedIn}
+        onLogout={handleLogout}
       />
       <main className="flex-1">
         {renderPage()}

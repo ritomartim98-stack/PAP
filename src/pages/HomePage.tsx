@@ -11,13 +11,65 @@ import {
   Cog,
   Shield,
   Zap,
-  ArrowRight
+  ArrowRight,
+  Clock,
+  Award,
+  Users,
+  Star,
+  MapPin,
+  Mail
 } from "lucide-react";
 import { motion } from "motion/react";
 
 interface HomePageProps {
   onNavigate: (page: string) => void;
 }
+
+// Statistics data
+const stats = [
+  { icon: Award, value: "15+", label: "Anos de Experiência" },
+  { icon: Users, value: "5000+", label: "Clientes Satisfeitos" },
+  { icon: Settings, value: "10000+", label: "Reparações Realizadas" },
+  { icon: Star, value: "4.9/5", label: "Avaliação Média" }
+];
+
+// Testimonials data
+const testimonials = [
+  {
+    name: "Ricardo Martins",
+    motorcycle: "Yamaha MT-07",
+    rating: 5,
+    text: "Excelente serviço! Equipa profissional e atenciosa. Sempre que preciso de manutenção para a minha mota, sei onde confiar."
+  },
+  {
+    name: "Sofia Ferreira",
+    motorcycle: "Honda CB650R",
+    rating: 5,
+    text: "Atendimento impecável e preços justos. Recomendo a todos os motociclistas que procuram qualidade."
+  },
+  {
+    name: "Miguel Santos",
+    motorcycle: "Kawasaki Z900",
+    rating: 5,
+    text: "Profissionais genuínos que sabem o que fazem. Diagnóstico preciso e resolução eficiente de todos os problemas."
+  }
+];
+
+// Team members
+const team = [
+  {
+    name: "João Silva",
+    role: "Mecânico Chefe",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
+    description: "Especialista em sistemas eletrónicos e injeção"
+  },
+  {
+    name: "Paulo Ribeiro",
+    role: "Técnico de Manutenção",
+    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face",
+    description: "Especialista em sistemas de travagem e suspensão"
+  }
+];
 
 export function HomePage({ onNavigate }: HomePageProps) {
   const services = [
@@ -100,35 +152,39 @@ export function HomePage({ onNavigate }: HomePageProps) {
 
   return (
     <div>
-      {/* Hero Section */}
-      <section className="relative bg-gray-900 text-white">
+      {/* Hero Section - First impression */}
+      <section className="relative bg-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
           <ImageWithFallback
-            src="https://motocrossactionmag.com/pt/segredos-de-velocidade-posi%C3%A7%C3%A3o-do-corpo-a-arte-de-manusear-a-bicicleta/"
+            src="https://www.yamaha-motor.eu/content/dam/yme/language-masters/en/segment-header-images/2024_YAM_YZ50th_Family_EU_PWS1_STA_001.tif"
             alt="Oficina de Motas"
-            className="w-full h-full object-cover opacity-40"
+            className="w-full h-full object-cover opacity-30"
           />
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-900/80 to-transparent" />
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 lg:py-40">
           <motion.div 
             className="max-w-3xl"
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.7 }}
           >
-            <h1 className="text-gray-50 mb-6">
-              A Sua Oficina de Confiança para Todas as Motas
+            <div className="inline-flex items-center gap-2 bg-blue-600/20 backdrop-blur-sm border border-blue-500/30 rounded-full px-4 py-2 mb-6">
+              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+              <span className="text-blue-300 text-sm font-medium">Oficina Especializada em Motociclos</span>
+            </div>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+              Excelência em <span className="text-blue-400">Manutenção</span> de Motociclos
             </h1>
-            <p className="text-gray-200 mb-8">
-              Oferecemos serviços de mecânica especializada em motociclos com qualidade, 
-              transparência e profissionalismo. Agende a sua revisão e mantenha a sua mota 
-              sempre em perfeito estado.
+            <p className="text-gray-300 text-lg md:text-xl mb-8 max-w-2xl">
+              Serviço profissional de excelência para a sua mota. Equipa especializada, 
+              equipamento moderno e compromisso com a sua segurança.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
                 size="lg" 
                 onClick={() => onNavigate("booking")}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-blue-600 hover:bg-blue-700 text-white border-0"
               >
                 <Calendar className="w-5 h-5 mr-2" />
                 Agendar Revisão
@@ -136,7 +192,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
               <Button 
                 size="lg" 
                 variant="outline"
-                className="bg-white/10 text-white border-white hover:bg-white/20"
+                className="bg-white/10 text-white border-white/20 hover:bg-white/20"
               >
                 <Phone className="w-5 h-5 mr-2" />
                 +351 912 345 678
@@ -146,22 +202,47 @@ export function HomePage({ onNavigate }: HomePageProps) {
         </div>
       </section>
 
+      {/* Stats Section - Social proof after hero */}
+      <section className="py-12 bg-gray-900 border-t border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {stats.map((stat, index) => (
+              <motion.div
+                key={index}
+                className="text-center py-4"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-600/20 rounded-full mb-3">
+                  <stat.icon className="w-6 h-6 text-blue-400" />
+                </div>
+                <div className="text-2xl md:text-3xl font-bold text-white mb-1">{stat.value}</div>
+                <div className="text-gray-400 text-sm">{stat.label}</div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Services Section */}
-      <section className="py-16 md:py-24 bg-gray-50">
+      <section className="py-20 md:py-28 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
-            className="text-center mb-12"
+            className="text-center mb-16"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-gray-900 mb-4">
-              Os Nossos Serviços
+            <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider">Os Nossos Serviços</span>
+            <h2 className="text-3xl md:text-4xl text-gray-900 mt-3 mb-4 font-bold">
+              Tudo o que a Sua Mota Precisa
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Oferecemos uma ampla gama de serviços para motas com equipamento moderno 
-              e profissionais altamente qualificados
+            <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+              Oferecemos serviços completos de manutenção e reparação com equipamento 
+              moderno e profissionais altamente qualificados
             </p>
           </motion.div>
 
@@ -180,7 +261,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
           </div>
 
           <div className="text-center">
-            <Button size="lg" onClick={() => onNavigate("services")}>
+            <Button size="lg" onClick={() => onNavigate("services")} className="bg-blue-600 hover:bg-blue-700">
               Ver Todos os Serviços
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
@@ -189,19 +270,20 @@ export function HomePage({ onNavigate }: HomePageProps) {
       </section>
 
       {/* About Section */}
-      <section className="py-16 md:py-24">
+      <section className="py-20 md:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="grid md:grid-cols-2 gap-12 lg:gap-16 items-center">
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <h2 className="text-gray-900 mb-6">
+              <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider">Sobre Nós</span>
+              <h2 className="text-3xl md:text-4xl text-gray-900 mt-3 mb-6 font-bold">
                 Por Que Escolher a Nossa Oficina?
               </h2>
-              <p className="text-gray-600 mb-8">
+              <p className="text-gray-600 mb-8 text-lg leading-relaxed">
                 Somos uma oficina especializada em manutenção de motociclos, comprometida em 
                 oferecer serviços de alta qualidade com preços justos e atendimento personalizado. 
                 A paixão pelas motas move-nos todos os dias.
@@ -223,14 +305,14 @@ export function HomePage({ onNavigate }: HomePageProps) {
                 ))}
               </div>
 
-              <Button onClick={() => onNavigate("booking")} size="lg">
+              <Button onClick={() => onNavigate("booking")} size="lg" className="bg-blue-600 hover:bg-blue-700">
                 Agendar Horário
               </Button>
             </motion.div>
 
             <motion.div 
               className="grid grid-cols-2 gap-4"
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
@@ -238,42 +320,188 @@ export function HomePage({ onNavigate }: HomePageProps) {
               <ImageWithFallback
                 src="https://images.unsplash.com/photo-1623221013483-1f3cbeffdcec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb3RvcmN5Y2xlJTIwcmVwYWlyJTIwc2VydmljZXxlbnwxfHx8fDE3NjAxMTI5ODR8MA&ixlib=rb-4.1.0&q=80&w=1080"
                 alt="Reparação de Motas"
-                className="rounded-lg shadow-lg w-full h-64 object-cover"
+                className="rounded-xl shadow-lg w-full h-48 md:h-64 object-cover"
               />
               <ImageWithFallback
                 src="https://images.unsplash.com/photo-1651152849966-c4d04f089981?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb3RvcmN5Y2xlJTIwbWFpbnRlbmFuY2V8ZW58MXx8fHwxNzYwMTEyOTg1fDA&ixlib=rb-4.1.0&q=80&w=1080"
                 alt="Manutenção de Motas"
-                className="rounded-lg shadow-lg w-full h-64 object-cover mt-8"
+                className="rounded-xl shadow-lg w-full h-48 md:h-64 object-cover mt-8"
               />
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="bg-blue-600 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
+      {/* Team Section */}
+      <section className="py-20 md:py-28 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div 
+            className="text-center mb-16"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-white mb-4">
+            <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider">Nossa Equipa</span>
+            <h2 className="text-3xl md:text-4xl text-gray-900 mt-3 mb-4 font-bold">
+              Profissionais Dedicados
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+              Uma equipa apaixonada por motociclos, pronta para oferecer o melhor serviço
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {team.map((member, index) => (
+              <motion.div
+                key={index}
+                className="bg-white rounded-xl shadow-lg overflow-hidden"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <ImageWithFallback
+                  src={member.image}
+                  alt={member.name}
+                  className="w-full h-64 object-cover"
+                />
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-1">{member.name}</h3>
+                  <p className="text-blue-600 font-medium mb-3">{member.role}</p>
+                  <p className="text-gray-600 text-sm">{member.description}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-20 md:py-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div 
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider">Testemunhos</span>
+            <h2 className="text-3xl md:text-4xl text-gray-900 mt-3 mb-4 font-bold">
+              O Que Os Nossos Clientes Dizem
+            </h2>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <motion.div
+                key={index}
+                className="bg-gray-50 rounded-xl p-6 md:p-8"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <div className="flex gap-1 mb-4">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-gray-600 mb-6 italic leading-relaxed">"{testimonial.text}"</p>
+                <div className="border-t pt-4">
+                  <p className="font-bold text-gray-900">{testimonial.name}</p>
+                  <p className="text-sm text-gray-500">{testimonial.motorcycle}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="bg-gray-900 text-white py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            className="text-center"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Pronto para Cuidar da Sua Mota?
             </h2>
-            <p className="text-blue-100 mb-8 max-w-2xl mx-auto">
+            <p className="text-gray-400 mb-8 max-w-2xl mx-auto text-lg">
               Agende agora a sua revisão e garanta a segurança e performance da sua mota
             </p>
-            <Button 
-              size="lg" 
-              onClick={() => onNavigate("booking")}
-              className="bg-white text-blue-600 hover:bg-gray-100"
-            >
-              <Calendar className="w-5 h-5 mr-2" />
-              Agendar a Minha Revisão
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                size="lg" 
+                onClick={() => onNavigate("booking")}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <Calendar className="w-5 h-5 mr-2" />
+                Agendar a Minha Revisão
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline"
+                onClick={() => onNavigate("contact")}
+                className="bg-white/10 text-white border-white/20 hover:bg-white/20"
+              >
+                <Mail className="w-5 h-5 mr-2" />
+                Contactar-nos
+              </Button>
+            </div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Contact Info Section */}
+      <section className="py-12 bg-blue-600">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+            <motion.div
+              className="flex flex-col items-center py-3"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center mb-3">
+                <Phone className="w-5 h-5 text-white" />
+              </div>
+              <p className="text-white font-semibold mb-1">Telefone</p>
+              <p className="text-blue-100 text-sm">+351 912 345 678</p>
+            </motion.div>
+            <motion.div
+              className="flex flex-col items-center py-3"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center mb-3">
+                <Clock className="w-5 h-5 text-white" />
+              </div>
+              <p className="text-white font-semibold mb-1">Horário</p>
+              <p className="text-blue-100 text-sm">Seg-Sex: 9h-18h | Sáb: 9h-13h</p>
+            </motion.div>
+            <motion.div
+              className="flex flex-col items-center py-3"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center mb-3">
+                <MapPin className="w-5 h-5 text-white" />
+              </div>
+              <p className="text-white font-semibold mb-1">Localização</p>
+              <p className="text-blue-100 text-sm">Rua da Oficina, 123, Lisboa</p>
+            </motion.div>
+          </div>
         </div>
       </section>
     </div>

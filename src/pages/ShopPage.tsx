@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
@@ -26,80 +26,27 @@ interface Motorcycle {
   condition: string;
 }
 
-const motorcycles: Motorcycle[] = [
-  {
-    id: 1,
-    name: "Yamaha Yz 125 2025",
-    category: "motocross",
-    price: 8200,
-    year: 2025,
-    horas: 0,
-    image: "https://cdpcdn.dx1app.com/products/USA/YA/2025/MC/MX/YZ125/50/MONSTER_ENERGY_YAMAHA_RACING_EDITION/2000000001.jpg",
-    specs: ["125cc", "35cv", ],
-    condition: "nova"
-  },
-  {
-    id: 2,
-    name: "Yamaha YZ125 Monster Energy Edition",
-    category: "Motocross",
-    price: 8500,
-    year: 2025,
-    horas: 0,
-    image: "https://cdpcdn.dx1app.com/products/USA/YA/2025/MC/MX/YZ125_MONSTER_ENERGY_EDITION/50/MONSTER_ENERGY_YAMAHA_RACING_EDITION/2000000001.jpg",
-    specs: ["125cc", "35cv"],
-    condition: "Nova"
-  },
-  {
-    id: 3,
-    name: "TMAX Tech MAX",
-    category: "Sport",
-    price: 15700,
-    year: 2025,
-    km: 0,
-    image: "https://cdn2.yamaha-motor.eu/prod/product-assets/2025/XP500ADX/2025-Yamaha-XP500ADX-EU-Ceramic_Grey-360-Degrees-001-03.jpg",
-    specs: ["560cc", "47,6cv", "ABS"],
-    condition: " Nova"
-  },
-  {
-    id: 4,
-    name: "Harley-Davidson Street 750",
-    category: "Cruiser",
-    price: 8900,
-    year: 2020,
-    km: 15000,
-    image: "https://images.unsplash.com/photo-1671272971942-cafd81c70e68?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjcnVpc2VyJTIwbW90b3JjeWNsZXxlbnwxfHx8fDE3NjAxMTMxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    specs: ["749cc", "53cv", "ABS"],
-    condition: "Seminova"
-  },
-  {
-    id: 5,
-    name: "BMW F 850 GS",
-    category: "Adventure",
-    price: 12500,
-    year: 2022,
-    km: 18000,
-    image: "https://images.unsplash.com/photo-1609630875171-b1321377ee65?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZHZlbnR1cmUlMjBtb3RvcmN5Y2xlfGVufDF8fHx8MTc2MDExMzE1MHww&ixlib=rb-4.1.0&q=80&w=1080",
-    specs: ["853cc", "95cv", "ABS", "TCS", "Quickshifter"],
-    condition: "Seminova"
-  },
-  {
-    id: 6,
-    name: "Honda Gold Wing",
-    category: "Touring",
-    price: 18500,
-    year: 2021,
-    km: 22000,
-    image: "https://images.unsplash.com/photo-1558980664-10e7170b5df9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080",
-    specs: ["1833cc", "126cv", "DCT", "Airbag", "Navegação"],
-    condition: "Seminova"
-  }
-];
 
 export function ShopPage({ onNavigate }: ShopPageProps) {
+  const [motorcycles, setMotorcycles] = useState<Motorcycle[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [priceFilter, setPriceFilter] = useState("all");
   const [favorites, setFavorites] = useState<number[]>([]);
+
+  useEffect(() => {
+    fetch('http://localhost:3001/api/motorcycles')
+      .then(response => response.json())
+      .then(data => {
+        setMotorcycles(data);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching motorcycles:', error);
+        setLoading(false);
+      });
+  }, []);
 
   const filteredMotorcycles = motorcycles.filter(moto => {
     const matchesSearch = moto.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -191,7 +138,7 @@ export function ShopPage({ onNavigate }: ShopPageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-6">
             <p className="text-gray-600">
-              {filteredMotorcycles.length} {filteredMotorcycles.length === 1 ? 'mota encontrada' : 'motas encontradas'}
+              {loading ? 'Carregando...' : `${filteredMotorcycles.length} ${filteredMotorcycles.length === 1 ? 'mota encontrada' : 'motas encontradas'}`}
             </p>
           </div>
 

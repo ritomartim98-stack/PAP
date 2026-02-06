@@ -32,140 +32,23 @@ interface Motorcycle {
   owners: number;
 }
 
-// Dados das motas (mesmo array do ShopPage)
-const motorcycles: Motorcycle[] = [
-  {
-    id: 1,
-    name: "Yamaha YZ125 ",
-    category: "motocross",
-    price: 8200,
-    year: 2025,
-    horas: 0,
-    image: "https://cdpcdn.dx1app.com/products/USA/YA/2025/MC/MX/YZ125/50/MONSTER_ENERGY_YAMAHA_RACING_EDITION/2000000001.jpg",
-    specs: ["125cc", "35cv", ],
-    condition: "nova",
-    description: "Algumas corridas são ganhas antes mesmo de cair a grelha de partida, e a mais recente YZ125 dá-lhe a vantagem para fazer isso. A Yamaha fabrica e compete com motos de motocross a 2 tempos há mais de 50 anos. Esta experiência inigualável permitiu à empresa melhorar mais uma vez a mais recente YZ125 e convertê-la numa moto criada para o levar ao lugar mais alto do pódio.",
-    images: [
-      "https://cdpcdn.dx1app.com/products/USA/YA/2025/MC/MX/YZ125/50/MONSTER_ENERGY_YAMAHA_RACING_EDITION/2000000002.jpg",
-      "https://cdpcdn.dx1app.com/products/USA/YA/2025/MC/MX/YZ125/50/MONSTER_ENERGY_YAMAHA_RACING_EDITION/2000000003.jpg",
-      "https://cdpcdn.dx1app.com/products/USA/YA/2025/MC/MX/YZ125/50/MONSTER_ENERGY_YAMAHA_RACING_EDITION/2000000004.jpg",
-      "https://cdpcdn.dx1app.com/products/USA/YA/2025/MC/MX/YZ125/50/MONSTER_ENERGY_YAMAHA_RACING_EDITION/2000000005.jpg",
-      "https://cdpcdn.dx1app.com/products/USA/YA/2025/MC/MX/YZ125/50/MONSTER_ENERGY_YAMAHA_RACING_EDITION/2000000006.jpg"
-        ],
-    fuel: "Gasolina",
-    transmission: "Manual 6 velocidades",
-    color: "Azul",
-    owners: 1
-  },
-  {
-    id: 2,
-    name: "Yamaha YZ125 Monster Energy Edition",
-    category: "Motocross",
-    price: 8500,
-    year: 2025,
-    horas: 0,
-    image: "https://cdpcdn.dx1app.com/products/USA/YA/2025/MC/MX/YZ125_MONSTER_ENERGY_EDITION/50/MONSTER_ENERGY_YAMAHA_RACING_EDITION/2000000001.jpg",
-    specs: ["125cc", "35cv"],
-    condition: "Nova",
-    description: "A Yamaha fabrica motos de motocross a 2 tempos há 50 anos e tem uma história igualmente longa na competição. Foi esta experiência sem paralelo que permitiu à empresa desenvolver a mais recente YZ125 Monster Energy Yamaha Racing Edition: uma moto fabricada para o levar à victorYZone!",
-    images: [
-      "https://cdpcdn.dx1app.com/products/USA/YA/2025/MC/MX/YZ125_MONSTER_ENERGY_EDITION/50/MONSTER_ENERGY_YAMAHA_RACING_EDITION/2000000001.jpg",
-      "https://cdpcdn.dx1app.com/products/USA/YA/2025/MC/MX/YZ125_MONSTER_ENERGY_EDITION/50/MONSTER_ENERGY_YAMAHA_RACING_EDITION/2000000002.jpg",
-      "https://cdpcdn.dx1app.com/products/USA/YA/2025/MC/MX/YZ125_MONSTER_ENERGY_EDITION/50/MONSTER_ENERGY_YAMAHA_RACING_EDITION/2000000003.jpg"
-    ],
-    fuel: "Gasolina",
-    transmission: "Manual 6 velocidades",
-    color: "Preto",
-    owners: 1
-  },
-  {
-    id: 3,
-    name: "Kawasaki Ninja 650",
-    category: "Sport",
-    price: 9500,
-    year: 2023,
-    km: 3000,
-    image: "https://images.unsplash.com/photo-1558980664-10e7170b5df9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzcG9ydCUyMG1vdG9yY3ljbGUlMjBzaG93cm9vbXxlbnwxfHx8fDE3NjAxMTMxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    specs: ["649cc", "68cv", "ABS", "TCS"],
-    condition: "Como Nova",
-    description: "A Kawasaki Ninja 650 combina o estilo desportivo das supersport com a praticidade de uma mota de uso diário. Equipada com ABS e controlo de tração, oferece segurança e confiança em todas as condições. Praticamente nova, com apenas 3.000 km.",
-    images: [
-      "https://images.unsplash.com/photo-1558980664-10e7170b5df9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080",
-      "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080",
-      "https://images.unsplash.com/photo-1558980664-3a031cf67ea8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080"
-    ],
-    fuel: "Gasolina",
-    transmission: "Manual 6 velocidades",
-    color: "Verde Kawasaki",
-    owners: 1
-  },
-  {
-    id: 4,
-    name: "Harley-Davidson Street 750",
-    category: "Cruiser",
-    price: 8900,
-    year: 2020,
-    km: 15000,
-    image: "https://images.unsplash.com/photo-1671272971942-cafd81c70e68?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjcnVpc2VyJTIwbW90b3JjeWNsZXxlbnwxfHx8fDE3NjAxMTMxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    specs: ["749cc", "53cv", "ABS"],
-    condition: "Seminova",
-    description: "A Harley-Davidson Street 750 é a porta de entrada para o mundo Harley. Com o icónico motor V-Twin refrigerado a líquido, oferece o som e a sensação característicos da marca. Posição de condução relaxada e estilo inconfundível.",
-    images: [
-      "https://images.unsplash.com/photo-1671272971942-cafd81c70e68?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080",
-      "https://images.unsplash.com/photo-1558980664-10e7170b5df9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080",
-      "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080"
-    ],
-    fuel: "Gasolina",
-    transmission: "Manual 6 velocidades",
-    color: "Preto Fosco",
-    owners: 2
-  },
-  {
-    id: 5,
-    name: "BMW F 850 GS",
-    category: "Adventure",
-    price: 12500,
-    year: 2022,
-    km: 18000,
-    image: "https://images.unsplash.com/photo-1609630875171-b1321377ee65?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZHZlbnR1cmUlMjBtb3RvcmN5Y2xlfGVufDF8fHx8MTc2MDExMzE1MHww&ixlib=rb-4.1.0&q=80&w=1080",
-    specs: ["853cc", "95cv", "ABS", "TCS", "Quickshifter"],
-    condition: "Seminova",
-    description: "A BMW F 850 GS é uma verdadeira adventure pronta para qualquer desafio. Motor bicilíndrico paralelo de 853cc com 95cv, suspensões de longo curso e eletrónica completa. Equipada com quickshifter, ABS Pro e modos de condução. Perfeita para viagens e todo-o-terreno.",
-    images: [
-      "https://images.unsplash.com/photo-1609630875171-b1321377ee65?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080",
-      "https://images.unsplash.com/photo-1558980664-10e7170b5df9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080",
-      "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080"
-    ],
-    fuel: "Gasolina",
-    transmission: "Manual 6 velocidades",
-    color: "Branco/Azul",
-    owners: 1
-  },
-  {
-    id: 6,
-    name: "Honda Gold Wing",
-    category: "Touring",
-    price: 18500,
-    year: 2021,
-    km: 22000,
-    image: "https://images.unsplash.com/photo-1558980664-10e7170b5df9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080",
-    specs: ["1833cc", "126cv", "DCT", "Airbag", "Navegação"],
-    condition: "Seminova",
-    description: "A Honda Gold Wing é o topo de gama das motas de turismo. Motor flat-six de 1833cc, transmissão DCT (automática), airbag, sistema de navegação integrado e conforto incomparável. Perfeita para grandes viagens com passageiro e bagagem.",
-    images: [
-      "https://images.unsplash.com/photo-1558980664-10e7170b5df9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080",
-      "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080",
-      "https://images.unsplash.com/photo-1558980664-3a031cf67ea8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080"
-    ],
-    fuel: "Gasolina",
-    transmission: "DCT (Automática)",
-    color: "Vermelho",
-    owners: 1
-  }
-];
 
 export function MotorcycleDetailPage({ motorcycleId, onNavigate }: MotorcycleDetailPageProps) {
-  const motorcycle = motorcycles.find(m => m.id === motorcycleId);
+  const [motorcycle, setMotorcycle] = useState<Motorcycle | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`http://localhost:3001/api/motorcycles/${motorcycleId}`)
+      .then(response => response.json())
+      .then(data => {
+        setMotorcycle(data);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching motorcycle:', error);
+        setLoading(false);
+      });
+  }, [motorcycleId]);
   const [selectedImage, setSelectedImage] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
@@ -181,7 +64,7 @@ export function MotorcycleDetailPage({ motorcycleId, onNavigate }: MotorcycleDet
     return () => clearInterval(interval);
   }, [motorcycle, isAutoPlaying]);
 
-  if (!motorcycle) {
+  if (loading || !motorcycle) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bike, Menu, X, ShoppingCart, Calendar } from "lucide-react";
+import { Bike, Menu, X, ShoppingCart, Calendar, LogIn, LogOut, UserPlus } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 
@@ -7,9 +7,11 @@ interface HeaderProps {
   currentPage: string;
   onNavigate: (page: string) => void;
   cartItemsCount?: number;
+  isLoggedIn: boolean;
+  onLogout: () => void;
 }
 
-export function Header({ currentPage, onNavigate, cartItemsCount = 0 }: HeaderProps) {
+export function Header({ currentPage, onNavigate, cartItemsCount = 0, isLoggedIn, onLogout }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
@@ -30,7 +32,7 @@ export function Header({ currentPage, onNavigate, cartItemsCount = 0 }: HeaderPr
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
           >
             <Bike className="w-8 h-8 text-blue-600" />
-            <span className="text-gray-900">MotoOficina Premium</span>
+            <span className="text-gray-900">MotaRoad</span>
           </button>
 
           {/* Desktop Navigation */}
@@ -63,6 +65,23 @@ export function Header({ currentPage, onNavigate, cartItemsCount = 0 }: HeaderPr
               <Calendar className="w-4 h-4 mr-2" />
               Agendar
             </Button>
+            {isLoggedIn ? (
+              <Button variant="outline" onClick={onLogout}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            ) : (
+              <div className="flex gap-2">
+                <Button variant="default" size="lg" onClick={() => onNavigate("login")}>
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Login
+                </Button>
+                <Button variant="default" size="lg" onClick={() => onNavigate("register")}>
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Registar
+                </Button>
+              </div>
+            )}
           </nav>
 
           {/* Mobile Menu Button */}
@@ -107,6 +126,46 @@ export function Header({ currentPage, onNavigate, cartItemsCount = 0 }: HeaderPr
               <Calendar className="w-4 h-4 mr-2" />
               Agendar Agora
             </Button>
+            {isLoggedIn ? (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  onLogout();
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            ) : (
+              <div className="space-y-2">
+                <Button
+                  variant="default"
+                  size="lg"
+                  onClick={() => {
+                    onNavigate("login");
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full"
+                >
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Login
+                </Button>
+                <Button
+                  variant="default"
+                  size="lg"
+                  onClick={() => {
+                    onNavigate("register");
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full"
+                >
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Registar
+                </Button>
+              </div>
+            )}
           </nav>
         )}
       </div>

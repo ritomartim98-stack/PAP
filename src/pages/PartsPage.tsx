@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { Search, ShoppingCart, Plus, Minus, Trash2, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "../components/ui/sheet";
 import { Separator } from "../components/ui/separator";
 
@@ -153,7 +153,7 @@ export function PartsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-white mb-4">Loja de Peças</h1>
+            <h1 className="text-4xl md:text-5xl text-white mb-4">Loja de Peças</h1>
             <p className="text-green-100 max-w-2xl">
               Encontre todas as peças e acessórios que precisa para a sua mota. 
               Só trabalhamos com marcas de confiança.

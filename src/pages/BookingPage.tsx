@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { motion } from "motion/react";
 import { Calendar as CalendarIcon, Clock, CheckCircle2 } from "lucide-react";
 import { Badge } from "../components/ui/badge";
@@ -76,7 +76,7 @@ export function BookingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-white mb-4">Agendar Serviço</h1>
+            <h1 className="text-4xl md:text-5xl text-white mb-4">Agendar Serviço</h1>
             <p className="text-purple-100 max-w-2xl">
               Escolha o melhor horário para si e agende o serviço da sua mota de forma rápida e fácil.
             </p>
@@ -164,7 +164,7 @@ export function BookingPage() {
                         mode="single"
                         selected={date}
                         onSelect={setDate}
-                        disabled={(date) => date < new Date() || date.getDay() === 0}
+                        disabled={(date: Date) => date < new Date() || date.getDay() === 0}
                         className="rounded-md border"
                       />
                     </div>
