@@ -66,10 +66,15 @@ export function Header({ currentPage, onNavigate, cartItemsCount = 0, isLoggedIn
               Agendar
             </Button>
             {isLoggedIn ? (
-              <Button variant="outline" onClick={onLogout}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </Button>
+              <>
+                <Button variant="outline" onClick={() => onNavigate("admin-bookings")}>
+                  Admin
+                </Button>
+                <Button variant="outline" onClick={onLogout}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </Button>
+              </>
             ) : (
               <div className="flex gap-2">
                 <Button variant="default" size="lg" onClick={() => onNavigate("login")}>
@@ -127,17 +132,29 @@ export function Header({ currentPage, onNavigate, cartItemsCount = 0, isLoggedIn
               Agendar Agora
             </Button>
             {isLoggedIn ? (
-              <Button
-                variant="outline"
-                onClick={() => {
-                  onLogout();
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full"
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </Button>
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    onNavigate("admin-bookings");
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full"
+                >
+                  Admin
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    onLogout();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </Button>
+              </>
             ) : (
               <div className="space-y-2">
                 <Button

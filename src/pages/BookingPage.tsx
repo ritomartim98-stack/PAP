@@ -49,6 +49,26 @@ export function BookingPage() {
       return;
     }
 
+    const newBooking = {
+      id: Date.now().toString(),
+      service,
+      serviceName: selectedService?.name || service,
+      date: date.toISOString(),
+      time,
+      duration: selectedService?.duration || "",
+      price: selectedService?.price || "",
+      name,
+      phone,
+      email,
+      vehicle,
+      notes,
+      status: "pending",
+      createdAt: new Date().toISOString()
+    };
+
+    const existingBookings = JSON.parse(localStorage.getItem("admin_bookings") || "[]");
+    localStorage.setItem("admin_bookings", JSON.stringify([...existingBookings, newBooking]));
+
     toast.success(`Agendamento confirmado para ${date.toLocaleDateString('pt-PT')} às ${time}!`);
     
     // Reset form
@@ -69,7 +89,7 @@ export function BookingPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero */}
-      <section className="bg-gradient-to-r from-purple-600 to-purple-800 text-white py-16">
+      <section className="bg-gray-900 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -77,7 +97,7 @@ export function BookingPage() {
             transition={{ duration: 0.6 }}
           >
             <h1 className="text-4xl md:text-5xl text-white mb-4">Agendar Serviço</h1>
-            <p className="text-purple-100 max-w-2xl">
+            <p className="text-gray-300 max-w-2xl">
               Escolha o melhor horário para si e agende o serviço da sua mota de forma rápida e fácil.
             </p>
           </motion.div>
@@ -90,15 +110,15 @@ export function BookingPage() {
           {/* Steps Indicator */}
           <div className="mb-8">
             <div className="flex items-center justify-center gap-4">
-              <div className={`flex items-center gap-2 ${step >= 1 ? 'text-purple-600' : 'text-gray-400'}`}>
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= 1 ? 'bg-purple-600 text-white' : 'bg-gray-200'}`}>
+              <div className={`flex items-center gap-2 ${step >= 1 ? 'text-blue-600' : 'text-gray-400'}`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>
                   {step > 1 ? <CheckCircle2 className="w-6 h-6" /> : '1'}
                 </div>
                 <span className="hidden sm:inline">Serviço e Data</span>
               </div>
               <div className="w-12 h-0.5 bg-gray-300"></div>
-              <div className={`flex items-center gap-2 ${step >= 2 ? 'text-purple-600' : 'text-gray-400'}`}>
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= 2 ? 'bg-purple-600 text-white' : 'bg-gray-200'}`}>
+              <div className={`flex items-center gap-2 ${step >= 2 ? 'text-blue-600' : 'text-gray-400'}`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>
                   2
                 </div>
                 <span className="hidden sm:inline">Dados Pessoais</span>
@@ -136,10 +156,10 @@ export function BookingPage() {
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="bg-purple-50 p-4 rounded-lg space-y-2"
+                        className="bg-blue-50 p-4 rounded-lg space-y-2"
                       >
-                        <h4 className="text-purple-900">{selectedService.name}</h4>
-                        <div className="flex items-center gap-4 text-sm text-purple-700">
+                        <h4 className="text-blue-900">{selectedService.name}</h4>
+                        <div className="flex items-center gap-4 text-sm text-blue-700">
                           <div className="flex items-center gap-1">
                             <Clock className="w-4 h-4" />
                             {selectedService.duration}
@@ -288,7 +308,7 @@ export function BookingPage() {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Preço:</span>
-                          <span className="text-purple-600">{selectedService?.price}</span>
+                          <span className="text-blue-600">{selectedService?.price}</span>
                         </div>
                       </div>
                     </motion.div>

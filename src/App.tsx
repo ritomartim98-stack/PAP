@@ -9,7 +9,8 @@ import { PartsPage } from "./pages/PartsPage";
 import { BookingPage } from "./pages/BookingPage";
 import { ContactPage } from "./pages/ContactPage";
 import LoginPage from "./pages/login";
-import RegisterPage from "./pages/Register";
+import RegisterPage from "./pages/register";
+import { AdminBookingsPage } from "./pages/AdminBookingsPage";
 import { Toaster } from "./components/ui/sonner";
 
 export default function App() {
@@ -38,6 +39,10 @@ export default function App() {
 
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('clientId');
+    localStorage.removeItem('user');
     setIsLoggedIn(false);
     handleNavigate('home');
   };
@@ -66,6 +71,8 @@ export default function App() {
         return <LoginPage onNavigate={handleNavigate} onLogin={() => setIsLoggedIn(true)} />;
       case "register":
         return <RegisterPage onNavigate={handleNavigate} onRegister={() => setIsLoggedIn(true)} />;
+      case "admin-bookings":
+        return <AdminBookingsPage onNavigate={handleNavigate} />;
       default:
         return <HomePage onNavigate={handleNavigate} />;
     }

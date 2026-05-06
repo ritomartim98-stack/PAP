@@ -80,7 +80,7 @@ export function ServicesPage({ onNavigate }: ServicesPageProps) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero */}
-      <section className="bg-gradient-to-r from-orange-600 to-orange-800 text-white py-16">
+      <section className="bg-gray-900 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -133,8 +133,8 @@ export function ServicesPage({ onNavigate }: ServicesPageProps) {
               viewport={{ once: true }}
               className="bg-gray-50 p-6 rounded-lg text-center"
             >
-              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Phone className="w-6 h-6 text-orange-600" />
+              <div className="w-12 h-12 bg-blue-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Phone className="w-6 h-6 text-blue-400" />
               </div>
               <h3 className="text-gray-900 mb-2">Telemóvel</h3>
               <p className="text-gray-600">+351 912 345 678</p>
@@ -148,8 +148,8 @@ export function ServicesPage({ onNavigate }: ServicesPageProps) {
               transition={{ delay: 0.1 }}
               className="bg-gray-50 p-6 rounded-lg text-center"
             >
-              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Mail className="w-6 h-6 text-orange-600" />
+              <div className="w-12 h-12 bg-blue-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Mail className="w-6 h-6 text-blue-400" />
               </div>
               <h3 className="text-gray-900 mb-2">E-mail</h3>
               <p className="text-gray-600">geral@motooficina.pt</p>
@@ -163,8 +163,8 @@ export function ServicesPage({ onNavigate }: ServicesPageProps) {
               transition={{ delay: 0.2 }}
               className="bg-gray-50 p-6 rounded-lg text-center"
             >
-              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <MapPin className="w-6 h-6 text-orange-600" />
+              <div className="w-12 h-12 bg-blue-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <MapPin className="w-6 h-6 text-blue-400" />
               </div>
               <h3 className="text-gray-900 mb-2">Morada</h3>
               <p className="text-gray-600">Rua dos Motards, 123</p>

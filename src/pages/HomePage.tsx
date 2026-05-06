@@ -160,7 +160,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
             alt="Oficina de Motas"
             className="w-full h-full object-cover opacity-30"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-900/80 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-900/90 to-gray-900/60" />
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 lg:py-40">
           <motion.div 
@@ -169,9 +169,9 @@ export function HomePage({ onNavigate }: HomePageProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
           >
-            <div className="inline-flex items-center gap-2 bg-blue-600/20 backdrop-blur-sm border border-blue-500/30 rounded-full px-4 py-2 mb-6">
+            <div className="inline-flex items-center gap-2 bg-blue-600/10 backdrop-blur-sm border border-blue-500/20 rounded-full px-4 py-2 mb-6">
               <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-              <span className="text-blue-300 text-sm font-medium">Oficina Especializada em Motociclos</span>
+              <span className="text-blue-200 text-sm font-medium">Oficina Especializada em Motociclos</span>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
               Excelência em <span className="text-blue-400">Manutenção</span> de Motociclos
@@ -192,7 +192,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
               <Button 
                 size="lg" 
                 variant="outline"
-                className="bg-white/10 text-white border-white/20 hover:bg-white/20"
+                className="bg-white/5 text-white border-white/20 hover:bg-white/15"
               >
                 <Phone className="w-5 h-5 mr-2" />
                 +351 912 345 678
@@ -202,32 +202,8 @@ export function HomePage({ onNavigate }: HomePageProps) {
         </div>
       </section>
 
-      {/* Stats Section - Social proof after hero */}
-      <section className="py-12 bg-gray-900 border-t border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {stats.map((stat, index) => (
-              <motion.div
-                key={index}
-                className="text-center py-4"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-600/20 rounded-full mb-3">
-                  <stat.icon className="w-6 h-6 text-blue-400" />
-                </div>
-                <div className="text-2xl md:text-3xl font-bold text-white mb-1">{stat.value}</div>
-                <div className="text-gray-400 text-sm">{stat.label}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Services Section */}
-      <section className="py-20 md:py-28 bg-gray-50">
+      <section className="py-20 md:py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             className="text-center mb-16"
@@ -236,11 +212,11 @@ export function HomePage({ onNavigate }: HomePageProps) {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider">Os Nossos Serviços</span>
+            <span className="text-blue-600 font-semibold text-sm uppercase tracking-widest">Os Nossos Serviços</span>
             <h2 className="text-3xl md:text-4xl text-gray-900 mt-3 mb-4 font-bold">
               Tudo o que a Sua Mota Precisa
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+            <p className="text-gray-500 max-w-2xl mx-auto text-lg">
               Oferecemos serviços completos de manutenção e reparação com equipamento 
               moderno e profissionais altamente qualificados
             </p>
@@ -270,7 +246,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
       </section>
 
       {/* About Section */}
-      <section className="py-20 md:py-28">
+      <section className="py-20 md:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 lg:gap-16 items-center">
             <motion.div
@@ -279,11 +255,11 @@ export function HomePage({ onNavigate }: HomePageProps) {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider">Sobre Nós</span>
+              <span className="text-blue-600 font-semibold text-sm uppercase tracking-widest">Sobre Nós</span>
               <h2 className="text-3xl md:text-4xl text-gray-900 mt-3 mb-6 font-bold">
                 Por Que Escolher a Nossa Oficina?
               </h2>
-              <p className="text-gray-600 mb-8 text-lg leading-relaxed">
+              <p className="text-gray-500 mb-8 text-lg leading-relaxed">
                 Somos uma oficina especializada em manutenção de motociclos, comprometida em 
                 oferecer serviços de alta qualidade com preços justos e atendimento personalizado. 
                 A paixão pelas motas move-nos todos os dias.
@@ -300,7 +276,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
                     transition={{ duration: 0.4, delay: index * 0.1 }}
                   >
                     <CheckCircle2 className="w-5 h-5 text-blue-600 flex-shrink-0 mt-1" />
-                    <span className="text-gray-700">{item}</span>
+                    <span className="text-gray-600">{item}</span>
                   </motion.div>
                 ))}
               </div>
@@ -332,8 +308,32 @@ export function HomePage({ onNavigate }: HomePageProps) {
         </div>
       </section>
 
+      {/* Stats Section - Social proof */}
+      <section className="py-12 bg-gray-900 border-t border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {stats.map((stat, index) => (
+              <motion.div
+                key={index}
+                className="text-center py-4"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-white/5 rounded-full mb-3">
+                  <stat.icon className="w-6 h-6 text-blue-400" />
+                </div>
+                <div className="text-2xl md:text-3xl font-bold text-white mb-1">{stat.value}</div>
+                <div className="text-gray-500 text-sm">{stat.label}</div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Team Section */}
-      <section className="py-20 md:py-28 bg-gray-50">
+      <section className="py-20 md:py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             className="text-center mb-16"
@@ -342,11 +342,11 @@ export function HomePage({ onNavigate }: HomePageProps) {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider">Nossa Equipa</span>
+            <span className="text-blue-600 font-semibold text-sm uppercase tracking-widest">Nossa Equipa</span>
             <h2 className="text-3xl md:text-4xl text-gray-900 mt-3 mb-4 font-bold">
               Profissionais Dedicados
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+            <p className="text-gray-500 max-w-2xl mx-auto text-lg">
               Uma equipa apaixonada por motociclos, pronta para oferecer o melhor serviço
             </p>
           </motion.div>
@@ -369,7 +369,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
                 <div className="p-6">
                   <h3 className="text-xl font-bold text-gray-900 mb-1">{member.name}</h3>
                   <p className="text-blue-600 font-medium mb-3">{member.role}</p>
-                  <p className="text-gray-600 text-sm">{member.description}</p>
+                  <p className="text-gray-500 text-sm">{member.description}</p>
                 </div>
               </motion.div>
             ))}
@@ -378,7 +378,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 md:py-28">
+      <section className="py-20 md:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             className="text-center mb-16"
@@ -387,7 +387,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider">Testemunhos</span>
+            <span className="text-blue-600 font-semibold text-sm uppercase tracking-widest">Testemunhos</span>
             <h2 className="text-3xl md:text-4xl text-gray-900 mt-3 mb-4 font-bold">
               O Que Os Nossos Clientes Dizem
             </h2>
@@ -408,7 +408,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
                     <Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />
                   ))}
                 </div>
-                <p className="text-gray-600 mb-6 italic leading-relaxed">"{testimonial.text}"</p>
+                <p className="text-gray-500 mb-6 italic leading-relaxed">"{testimonial.text}"</p>
                 <div className="border-t pt-4">
                   <p className="font-bold text-gray-900">{testimonial.name}</p>
                   <p className="text-sm text-gray-500">{testimonial.motorcycle}</p>
@@ -432,7 +432,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Pronto para Cuidar da Sua Mota?
             </h2>
-            <p className="text-gray-400 mb-8 max-w-2xl mx-auto text-lg">
+            <p className="text-gray-500 mb-8 max-w-2xl mx-auto text-lg">
               Agende agora a sua revisão e garanta a segurança e performance da sua mota
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -448,7 +448,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
                 size="lg" 
                 variant="outline"
                 onClick={() => onNavigate("contact")}
-                className="bg-white/10 text-white border-white/20 hover:bg-white/20"
+                className="bg-white/5 text-white border-white/20 hover:bg-white/10"
               >
                 <Mail className="w-5 h-5 mr-2" />
                 Contactar-nos
@@ -459,7 +459,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
       </section>
 
       {/* Contact Info Section */}
-      <section className="py-12 bg-blue-600">
+      <section className="py-12 bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
             <motion.div
@@ -469,11 +469,11 @@ export function HomePage({ onNavigate }: HomePageProps) {
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
-              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center mb-3">
-                <Phone className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center mb-3">
+                <Phone className="w-5 h-5 text-blue-400" />
               </div>
               <p className="text-white font-semibold mb-1">Telefone</p>
-              <p className="text-blue-100 text-sm">+351 912 345 678</p>
+              <p className="text-gray-400 text-sm">+351 912 345 678</p>
             </motion.div>
             <motion.div
               className="flex flex-col items-center py-3"
@@ -482,11 +482,11 @@ export function HomePage({ onNavigate }: HomePageProps) {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.1 }}
             >
-              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center mb-3">
-                <Clock className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center mb-3">
+                <Clock className="w-5 h-5 text-blue-400" />
               </div>
               <p className="text-white font-semibold mb-1">Horário</p>
-              <p className="text-blue-100 text-sm">Seg-Sex: 9h-18h | Sáb: 9h-13h</p>
+              <p className="text-gray-400 text-sm">Seg-Sex: 9h-18h | Sáb: 9h-13h</p>
             </motion.div>
             <motion.div
               className="flex flex-col items-center py-3"
@@ -495,11 +495,11 @@ export function HomePage({ onNavigate }: HomePageProps) {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center mb-3">
-                <MapPin className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center mb-3">
+                <MapPin className="w-5 h-5 text-blue-400" />
               </div>
               <p className="text-white font-semibold mb-1">Localização</p>
-              <p className="text-blue-100 text-sm">Rua da Oficina, 123, Lisboa</p>
+              <p className="text-gray-400 text-sm">Rua da Oficina, 123, Lisboa</p>
             </motion.div>
           </div>
         </div>

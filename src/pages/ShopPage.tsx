@@ -36,14 +36,22 @@ export function ShopPage({ onNavigate }: ShopPageProps) {
   const [favorites, setFavorites] = useState<number[]>([]);
 
   useEffect(() => {
+    // ALTERACAO: a loja busca as motas da tabela "motas" atraves do backend ligado ao XAMPP/MySQL.
     fetch('http://localhost:3001/api/motorcycles')
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Nao foi possivel carregar as motas da base de dados");
+        }
+
+        return response.json();
+      })
       .then(data => {
         setMotorcycles(data);
         setLoading(false);
       })
       .catch(error => {
         console.error('Error fetching motorcycles:', error);
+        toast.error("Nao foi possivel carregar as motas da base de dados");
         setLoading(false);
       });
   }, []);
@@ -73,7 +81,7 @@ export function ShopPage({ onNavigate }: ShopPageProps) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero */}
-      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
+      <section className="bg-gray-900 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
