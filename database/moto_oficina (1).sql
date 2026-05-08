@@ -153,6 +153,21 @@ CREATE TABLE `servico` (
   `ativo` tinyint(1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Extraindo dados da tabela `servico`
+--
+
+INSERT INTO `servico` (`idservico`, `nome`, `descricao`, `duracaoestimada`, `preco`, `ativo`) VALUES
+(1, 'Revisao Completa', 'Revisao geral da mota', 150, 150.00, 1),
+(2, 'Mudanca de Oleo', 'Mudanca de oleo e filtro', 30, 50.00, 1),
+(3, 'Travoes', 'Pastilhas e discos', 90, 120.00, 1),
+(4, 'Pneus e Rodas', 'Servico de pneus e rodas', 60, 80.00, 1),
+(5, 'Diagnostico Eletronico', 'Diagnostico com equipamento', 60, 60.00, 1),
+(6, 'Corrente e Transmissao', 'Ajuste ou troca de transmissao', 60, 90.00, 1),
+(7, 'Suspensao', 'Revisao de suspensao', 120, 180.00, 1),
+(8, 'Escape', 'Servico de escape', 90, 100.00, 1),
+(9, 'Outro', 'Servico a combinar', NULL, 0.00, 1);
+
 -- --------------------------------------------------------
 
 --

@@ -66,10 +66,17 @@ export function AdminBookingsPage({ onNavigate }: { onNavigate: (page: string) =
   const [authPassword, setAuthPassword] = useState("");
 
   useEffect(() => {
-    const savedBookings = localStorage.getItem("admin_bookings");
-    if (savedBookings) {
-      setBookings(JSON.parse(savedBookings));
-    }
+    fetch("http://localhost:3001/api/marcacoes")
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Erro ao carregar marcacoes");
+        }
+
+        return res.json();
+      })
+      .then((data) => setBookings(data))
+      .catch((err) => console.error(err));
+
     const auth = localStorage.getItem("admin_auth") === "true";
     setIsAuthenticated(auth);
   }, []);
@@ -82,19 +89,45 @@ export function AdminBookingsPage({ onNavigate }: { onNavigate: (page: string) =
     }
   };
 
-  const updateBookingStatus = (id: string, status: Booking["status"]) => {
-    const updatedBookings = bookings.map(b => 
-      b.id === id ? { ...b, status } : b
-    );
+  const updateBookingStatus = async (id: string, status: Booking["status"]) => {
+    const previousBookings = bookings;
+    const updatedBookings = bookings.map(b => b.id === id ? { ...b, status } : b);
     setBookings(updatedBookings);
-    localStorage.setItem("admin_bookings", JSON.stringify(updatedBookings));
+
+    try {
+      const res = await fetch(`http://localhost:3001/api/marcacoes/${id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status })
+      });
+
+      if (!res.ok) {
+        throw new Error("Erro ao atualizar marcacao");
+      }
+    } catch (err) {
+      console.error(err);
+      setBookings(previousBookings);
+    }
   };
 
-  const deleteBooking = (id: string) => {
+  const deleteBooking = async (id: string) => {
+    const previousBookings = bookings;
     const updatedBookings = bookings.filter(b => b.id !== id);
     setBookings(updatedBookings);
-    localStorage.setItem("admin_bookings", JSON.stringify(updatedBookings));
     setSelectedBooking(null);
+
+    try {
+      const res = await fetch(`http://localhost:3001/api/marcacoes/${id}`, {
+        method: "DELETE"
+      });
+
+      if (!res.ok) {
+        throw new Error("Erro ao eliminar marcacao");
+      }
+    } catch (err) {
+      console.error(err);
+      setBookings(previousBookings);
+    }
   };
 
   const filteredBookings = bookings.filter(booking => {

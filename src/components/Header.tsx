@@ -8,10 +8,11 @@ interface HeaderProps {
   onNavigate: (page: string) => void;
   cartItemsCount?: number;
   isLoggedIn: boolean;
+  isAdmin: boolean;
   onLogout: () => void;
 }
 
-export function Header({ currentPage, onNavigate, cartItemsCount = 0, isLoggedIn, onLogout }: HeaderProps) {
+export function Header({ currentPage, onNavigate, cartItemsCount = 0, isLoggedIn, isAdmin, onLogout }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
@@ -67,9 +68,11 @@ export function Header({ currentPage, onNavigate, cartItemsCount = 0, isLoggedIn
             </Button>
             {isLoggedIn ? (
               <>
-                <Button variant="outline" onClick={() => onNavigate("admin-bookings")}>
-                  Admin
-                </Button>
+                {isAdmin && (
+                  <Button variant="outline" onClick={() => onNavigate("admin-bookings")}>
+                    Admin
+                  </Button>
+                )}
                 <Button variant="outline" onClick={onLogout}>
                   <LogOut className="w-4 h-4 mr-2" />
                   Logout
@@ -133,16 +136,18 @@ export function Header({ currentPage, onNavigate, cartItemsCount = 0, isLoggedIn
             </Button>
             {isLoggedIn ? (
               <>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    onNavigate("admin-bookings");
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full"
-                >
-                  Admin
-                </Button>
+                {isAdmin && (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      onNavigate("admin-bookings");
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full"
+                  >
+                    Admin
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   onClick={() => {

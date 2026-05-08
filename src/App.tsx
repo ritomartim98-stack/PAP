@@ -16,13 +16,25 @@ import { Toaster } from "./components/ui/sonner";
 export default function App() {
   const [currentPage, setCurrentPage] = useState("home");
   const [selectedMotorcycleId, setSelectedMotorcycleId] = useState<number | null>(null);
-  const [cartItemsCount, setCartItemsCount] = useState(0);
+  const [cartItemsCount] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  const refreshAuthState = () => {
+    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    setIsLoggedIn(loggedIn);
+
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || 'null');
+      setIsAdmin(loggedIn && user?.perfil === 'admin');
+    } catch {
+      setIsAdmin(false);
+    }
+  };
 
   // Check login status on mount
   useEffect(() => {
-    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    setIsLoggedIn(loggedIn);
+    refreshAuthState();
   }, []);
 
   // Smooth scroll to top when page changes
@@ -43,7 +55,9 @@ export default function App() {
     localStorage.removeItem('userId');
     localStorage.removeItem('clientId');
     localStorage.removeItem('user');
+    localStorage.removeItem('admin_auth');
     setIsLoggedIn(false);
+    setIsAdmin(false);
     handleNavigate('home');
   };
 
@@ -68,11 +82,11 @@ export default function App() {
       case "contact":
         return <ContactPage />;
       case "login":
-        return <LoginPage onNavigate={handleNavigate} onLogin={() => setIsLoggedIn(true)} />;
+        return <LoginPage onNavigate={handleNavigate} onLogin={refreshAuthState} />;
       case "register":
-        return <RegisterPage onNavigate={handleNavigate} onRegister={() => setIsLoggedIn(true)} />;
+        return <RegisterPage onNavigate={handleNavigate} onRegister={refreshAuthState} />;
       case "admin-bookings":
-        return <AdminBookingsPage onNavigate={handleNavigate} />;
+        return isAdmin ? <AdminBookingsPage onNavigate={handleNavigate} /> : <HomePage onNavigate={handleNavigate} />;
       default:
         return <HomePage onNavigate={handleNavigate} />;
     }
@@ -86,6 +100,7 @@ export default function App() {
         onNavigate={handleNavigate}
         cartItemsCount={cartItemsCount}
         isLoggedIn={isLoggedIn}
+        isAdmin={isAdmin}
         onLogout={handleLogout}
       />
       <main className="flex-1">

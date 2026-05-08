@@ -6,8 +6,19 @@ const jwt = require('jsonwebtoken');
 const db = require('./db');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || 'pap-dev-secret';
+const defaultServices = [
+  ['Revisao Completa', 'Revisao geral da mota', 150, 150.00],
+  ['Mudanca de Oleo', 'Mudanca de oleo e filtro', 30, 50.00],
+  ['Travoes', 'Pastilhas e discos', 90, 120.00],
+  ['Pneus e Rodas', 'Servico de pneus e rodas', 60, 80.00],
+  ['Diagnostico Eletronico', 'Diagnostico com equipamento', 60, 60.00],
+  ['Corrente e Transmissao', 'Ajuste ou troca de transmissao', 60, 90.00],
+  ['Suspensao', 'Revisao de suspensao', 120, 180.00],
+  ['Escape', 'Servico de escape', 90, 100.00],
+  ['Outro', 'Servico a combinar', null, 0.00]
+];
 
 app.use(cors());
 app.use(express.json());
@@ -21,6 +32,22 @@ db.getConnection((err, connection) => {
 
   console.log('Ligado a base de dados com sucesso!');
   connection.release();
+});
+
+db.query('SELECT COUNT(*) AS total FROM servico', (err, results) => {
+  if (err || results[0].total > 0) {
+    return;
+  }
+
+  db.query(
+    'INSERT INTO servico (nome, descricao, duracaoestimada, preco, ativo) VALUES ?',
+    [defaultServices.map((service) => [...service, 1])],
+    (insertErr) => {
+      if (insertErr) {
+        console.error('Erro ao criar servicos iniciais:', insertErr.message);
+      }
+    }
+  );
 });
 
 function formatMotorcycle(row, req) {
@@ -279,14 +306,60 @@ app.get('/api/perfil', verifyToken, (req, res) => {
 });
 
 app.get('/api/servicos', (req, res) => {
-  db.query('SELECT * FROM servico WHERE ativo = 1', (err, results) => {
+  db.query('SELECT idservico, nome, descricao, duracaoestimada, preco FROM servico WHERE ativo = 1 ORDER BY nome', (err, results) => {
     if (err) {
       return res.status(500).json({ message: 'Erro ao buscar servicos.' });
     }
 
-    res.json(results);
+    res.json(results.map((row) => ({
+      id: String(row.idservico),
+      idservico: row.idservico,
+      name: row.nome,
+      nome: row.nome,
+      description: row.descricao,
+      durationMinutes: row.duracaoestimada,
+      duration: formatDuration(row.duracaoestimada),
+      priceValue: Number(row.preco),
+      price: Number(row.preco) > 0 ? `${Number(row.preco).toFixed(2)} EUR` : 'A consultar'
+    })));
   });
 });
+
+function formatDuration(minutes) {
+  if (!minutes) {
+    return 'Variavel';
+  }
+
+  if (minutes < 60) {
+    return `${minutes}min`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  return remainingMinutes ? `${hours}h ${remainingMinutes}min` : `${hours}h`;
+}
+
+function toApiStatus(status) {
+  const statusMap = {
+    pendente: 'pending',
+    confirmado: 'confirmed',
+    concluido: 'completed',
+    cancelado: 'cancelled'
+  };
+
+  return statusMap[(status || '').toLowerCase()] || 'pending';
+}
+
+function toDbStatus(status) {
+  const statusMap = {
+    pending: 'pendente',
+    confirmed: 'confirmado',
+    completed: 'concluido',
+    cancelled: 'cancelado'
+  };
+
+  return statusMap[status] || 'pendente';
+}
 
 app.get('/api/motorcycles', (req, res) => {
   db.query('SELECT * FROM motas ORDER BY data_adicionado DESC, id DESC', (err, results) => {
@@ -313,23 +386,197 @@ app.get('/api/motorcycles/:id', (req, res) => {
 });
 
 app.post('/api/marcacao', (req, res) => {
-  const { idcliente, idveiculo, datahora } = req.body;
+  const { idcliente, idservico, datahora, vehicle } = req.body;
+  const clientId = Number(idcliente);
+  const serviceId = Number(idservico);
+  const vehicleText = (vehicle || '').trim();
+  const clientName = (req.body.name || '').trim();
+  const clientPhone = (req.body.phone || '').trim();
 
-  if (!idcliente || !idveiculo || !datahora) {
+  if (!clientId || !serviceId || !datahora || !vehicleText) {
     return res.status(400).json({ message: 'Dados da marcacao em falta.' });
   }
 
-  db.query(
-    'INSERT INTO marcacao (idcliente, idveiculo, datahora, estado, motas_cliente, datacriacao) VALUES (?, ?, ?, "pendente", "", NOW())',
-    [idcliente, idveiculo, datahora],
-    (err) => {
-      if (err) {
-        return res.status(500).json({ message: 'Erro ao criar marcacao.' });
+  db.getConnection((connectionErr, connection) => {
+    if (connectionErr) {
+      return res.status(500).json({ message: 'Erro ao ligar a base de dados.' });
+    }
+
+    connection.beginTransaction((transactionErr) => {
+      if (transactionErr) {
+        connection.release();
+        return res.status(500).json({ message: 'Erro ao iniciar marcacao.' });
       }
 
-      res.status(201).json({ message: 'Marcacao criada.' });
+      connection.query(
+        'SELECT idservico, preco, duracaoestimada FROM servico WHERE idservico = ? AND ativo = 1 LIMIT 1',
+        [serviceId],
+        (serviceErr, services) => {
+          if (serviceErr || services.length === 0) {
+            return connection.rollback(() => {
+              connection.release();
+              res.status(serviceErr ? 500 : 404).json({ message: serviceErr ? 'Erro ao validar servico.' : 'Servico nao encontrado.' });
+            });
+          }
+
+          const selectedService = services[0];
+
+          connection.query(
+            'UPDATE cliente SET nome = ?, tlm = ? WHERE idcliente = ?',
+            [clientName || 'Cliente', clientPhone, clientId],
+            (clientErr, clientResult) => {
+              if (clientErr || clientResult.affectedRows === 0) {
+                return connection.rollback(() => {
+                  connection.release();
+                  res.status(clientErr ? 500 : 404).json({ message: clientErr ? 'Erro ao atualizar cliente.' : 'Cliente nao encontrado.' });
+                });
+              }
+
+              connection.query(
+                'INSERT INTO veiculo_cliente (idcliente, matricula, modelo) VALUES (?, ?, ?)',
+                [clientId, '', vehicleText],
+                (vehicleErr, vehicleResult) => {
+                  if (vehicleErr) {
+                    return connection.rollback(() => {
+                      connection.release();
+                      res.status(500).json({ message: 'Erro ao criar veiculo.' });
+                    });
+                  }
+
+                  connection.query(
+                    'INSERT INTO marcacao (idcliente, idveiculo, datahora, estado, motas_cliente, datacriacao) VALUES (?, ?, ?, "pendente", ?, NOW())',
+                    [clientId, vehicleResult.insertId, datahora, vehicleText],
+                    (bookingErr, bookingResult) => {
+                      if (bookingErr) {
+                        return connection.rollback(() => {
+                          connection.release();
+                          res.status(500).json({ message: 'Erro ao criar marcacao.' });
+                        });
+                      }
+
+                      connection.query(
+                        'INSERT INTO marcacao_servico (idmarcacao, idservico, preco, duracao_min) VALUES (?, ?, ?, ?)',
+                        [bookingResult.insertId, serviceId, selectedService.preco, selectedService.duracaoestimada],
+                        (bookingServiceErr) => {
+                          if (bookingServiceErr) {
+                            return connection.rollback(() => {
+                              connection.release();
+                              res.status(500).json({ message: 'Erro ao associar servico.' });
+                            });
+                          }
+
+                          connection.commit((commitErr) => {
+                            connection.release();
+
+                            if (commitErr) {
+                              return res.status(500).json({ message: 'Erro ao finalizar marcacao.' });
+                            }
+
+                            res.status(201).json({
+                              message: 'Marcacao criada.',
+                              idmarcacao: bookingResult.insertId,
+                              idveiculo: vehicleResult.insertId
+                            });
+                          });
+                        }
+                      );
+                    }
+                  );
+                }
+              );
+            }
+          );
+        }
+      );
+    });
+  });
+});
+
+app.get('/api/marcacoes', (req, res) => {
+  const sql = `
+    SELECT
+      m.idmarcacao,
+      m.datahora,
+      m.estado,
+      m.motas_cliente,
+      m.datacriacao,
+      c.nome,
+      c.tlm,
+      u.email,
+      v.modelo,
+      s.idservico,
+      s.nome AS servico_nome,
+      ms.preco,
+      ms.duracao_min
+    FROM marcacao m
+    INNER JOIN cliente c ON c.idcliente = m.idcliente
+    LEFT JOIN utilizador u ON u.idutilizador = c.idutilizador
+    INNER JOIN veiculo_cliente v ON v.idveiculo = m.idveiculo
+    INNER JOIN marcacao_servico ms ON ms.idmarcacao = m.idmarcacao
+    INNER JOIN servico s ON s.idservico = ms.idservico
+    ORDER BY m.datahora DESC
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      return res.status(500).json({ message: 'Erro ao buscar marcacoes.' });
+    }
+
+    res.json(results.map((row) => {
+      const date = new Date(row.datahora);
+
+      return {
+        id: String(row.idmarcacao),
+        service: String(row.idservico),
+        serviceName: row.servico_nome,
+        date: date.toISOString(),
+        time: date.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }),
+        duration: formatDuration(row.duracao_min),
+        price: Number(row.preco) > 0 ? `${Number(row.preco).toFixed(2)} EUR` : 'A consultar',
+        name: row.nome,
+        phone: row.tlm || '',
+        email: row.email || '',
+        vehicle: row.motas_cliente || row.modelo || '',
+        notes: '',
+        status: toApiStatus(row.estado),
+        createdAt: row.datacriacao ? new Date(row.datacriacao).toISOString() : ''
+      };
+    }));
+  });
+});
+
+app.patch('/api/marcacoes/:id/status', (req, res) => {
+  const status = toDbStatus(req.body.status);
+
+  db.query(
+    'UPDATE marcacao SET estado = ? WHERE idmarcacao = ?',
+    [status, req.params.id],
+    (err, result) => {
+      if (err) {
+        return res.status(500).json({ message: 'Erro ao atualizar marcacao.' });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: 'Marcacao nao encontrada.' });
+      }
+
+      res.json({ message: 'Marcacao atualizada.' });
     }
   );
+});
+
+app.delete('/api/marcacoes/:id', (req, res) => {
+  db.query('DELETE FROM marcacao WHERE idmarcacao = ?', [req.params.id], (err, result) => {
+    if (err) {
+      return res.status(500).json({ message: 'Erro ao eliminar marcacao.' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Marcacao nao encontrada.' });
+    }
+
+    res.json({ message: 'Marcacao eliminada.' });
+  });
 });
 
 app.listen(PORT, () => {
