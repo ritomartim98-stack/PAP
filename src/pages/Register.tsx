@@ -4,6 +4,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { User, Mail, Lock } from 'lucide-react';
+import { sendWelcomeEmail } from "../utils/sendEmail";
 
 export default function RegisterPage({ onNavigate, onRegister }) {
   const [name, setName] = useState('');
