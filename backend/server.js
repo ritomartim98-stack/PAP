@@ -1,9 +1,38 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const db = require('./db');
+
+const envPath = path.join(__dirname, '.env');
+if (fs.existsSync(envPath)) {
+  const envLines = fs.readFileSync(envPath, 'utf8').split(/\r?\n/);
+
+  envLines.forEach((line) => {
+    const trimmedLine = line.trim();
+
+    if (!trimmedLine || trimmedLine.startsWith('#')) {
+      return;
+    }
+
+    const separatorIndex = trimmedLine.indexOf('=');
+
+    if (separatorIndex === -1) {
+      return;
+    }
+
+    const key = trimmedLine.slice(0, separatorIndex).trim();
+    const value = trimmedLine.slice(separatorIndex + 1).trim().replace(/^["']|["']$/g, '');
+
+    if (key && process.env[key] === undefined) {
+      process.env[key] = value;
+    }
+  });
+}
+
+const { sendWelcomeEmail } = require('./sendEmail');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -213,6 +242,10 @@ app.post(['/api/register', '/register'], async (req, res) => {
                       }
 
                       const user = { idutilizador: userId, email, perfil: 'cliente' };
+                      sendWelcomeEmail(email, nome).catch((emailErr) => {
+                        console.error('Erro ao enviar email de boas-vindas:', emailErr.message);
+                      });
+
                       res.status(201).json({
                         message: 'Utilizador criado com sucesso.',
                         token: createToken(user),
