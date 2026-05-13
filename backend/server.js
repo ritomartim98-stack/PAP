@@ -118,6 +118,40 @@ function formatMotorcycle(row, req) {
   };
 }
 
+function formatPart(row, req) {
+  const baseUrl = `${req.protocol}://${req.get('host')}`;
+  const rawImage = row.imagem || '';
+  let image = 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=1080&q=80';
+
+  if (rawImage) {
+    if (rawImage.startsWith('http')) {
+      image = rawImage;
+    } else {
+      const normalizedImage = rawImage.replace(/\\/g, '/').replace(/^\/+/, '');
+      image = normalizedImage.includes('/')
+        ? `${baseUrl}/${normalizedImage}`
+        : `${baseUrl}/uploads/${normalizedImage}`;
+    }
+  }
+
+  return {
+    id: row.idpeca,
+    idpeca: row.idpeca,
+    name: row.nome,
+    nome: row.nome,
+    category: row.categoria,
+    categoria: row.categoria,
+    reference: row.referencia || '',
+    referencia: row.referencia || '',
+    price: Number(row.preco),
+    preco: Number(row.preco),
+    stock: Number(row.stock),
+    image,
+    imagem: image,
+    brand: row.referencia || row.categoria
+  };
+}
+
 function createToken(user) {
   return jwt.sign(
     {
@@ -355,6 +389,23 @@ app.get('/api/servicos', (req, res) => {
       priceValue: Number(row.preco),
       price: Number(row.preco) > 0 ? `${Number(row.preco).toFixed(2)} EUR` : 'A consultar'
     })));
+  });
+});
+
+app.get('/api/pecas', (req, res) => {
+  const sql = `
+    SELECT idpeca, categoria, nome, referencia, preco, imagem, stock
+    FROM peca
+    WHERE ativo = 1 OR ativo IS NULL
+    ORDER BY datacriacao DESC, idpeca DESC
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      return res.status(500).json({ message: 'Erro ao buscar pecas.' });
+    }
+
+    res.json(results.map((row) => formatPart(row, req)));
   });
 });
 
