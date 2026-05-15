@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import type { FormEvent } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { Search, ShoppingCart, Plus, Minus, Trash2 } from "lucide-react";
@@ -37,12 +39,20 @@ export function PartsPage() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
+  const [checkoutMode, setCheckoutMode] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutForm, setCheckoutForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    address: ""
+  });
 
   useEffect(() => {
     fetch("http://localhost:3001/api/pecas", { cache: "no-store" })
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Erro ao buscar pecas");
+          throw new Error("Erro ao buscar peças");
         }
 
         return response.json();
@@ -53,7 +63,7 @@ export function PartsPage() {
       })
       .catch((error) => {
         console.error("Error fetching parts:", error);
-        setPartsError("Nao foi possivel carregar as pecas da base de dados.");
+        setPartsError("Nao foi possivel carregar as peças da base de dados.");
       })
       .finally(() => {
         setLoadingParts(false);
@@ -121,6 +131,49 @@ export function PartsPage() {
 
   const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const cartItemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const orderTotal = cartTotal * 1.23;
+
+  const openCheckout = () => {
+    setCheckoutMode(true);
+  };
+
+  const handleCheckout = async (event: FormEvent) => {
+    event.preventDefault();
+
+    if (!checkoutForm.name || !checkoutForm.email || !checkoutForm.phone || !checkoutForm.address) {
+      toast.error("Preencha todos os dados pessoais.");
+      return;
+    }
+
+    try {
+      setCheckoutLoading(true);
+
+      const response = await fetch("http://localhost:3001/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customer: checkoutForm,
+          items: cart
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Nao foi possivel finalizar a compra.");
+      }
+
+      toast.success("Compra finalizada! Enviamos a confirmacao para o seu email.");
+      setCart([]);
+      setCartOpen(false);
+      setCheckoutMode(false);
+      setCheckoutForm({ name: "", email: "", phone: "", address: "" });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Nao foi possivel finalizar a compra.");
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -131,9 +184,9 @@ export function PartsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-4xl md:text-5xl text-white mb-4">Loja de Pecas</h1>
+            <h1 className="text-4xl md:text-5xl text-white mb-4">Loja de Peças</h1>
             <p className="text-green-100 max-w-2xl">
-              Encontre todas as pecas e acessorios que precisa para a sua mota.
+              Encontre todas as peças e acessorios que precisa para a sua mota.
               So trabalhamos com marcas de confianca.
             </p>
           </motion.div>
@@ -146,7 +199,7 @@ export function PartsPage() {
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <Input
-                placeholder="Pesquisar pecas..."
+                placeholder="Pesquisar peças..."
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 className="pl-10"
@@ -167,7 +220,15 @@ export function PartsPage() {
               </SelectContent>
             </Select>
 
-            <Sheet open={cartOpen} onOpenChange={setCartOpen}>
+            <Sheet
+              open={cartOpen}
+              onOpenChange={(open) => {
+                setCartOpen(open);
+                if (!open) {
+                  setCheckoutMode(false);
+                }
+              }}
+            >
               <SheetTrigger asChild>
                 <Button className="relative">
                   <ShoppingCart className="w-5 h-5 mr-2" />
@@ -181,12 +242,80 @@ export function PartsPage() {
               </SheetTrigger>
               <SheetContent className="w-full sm:max-w-lg">
                 <SheetHeader>
-                  <SheetTitle>Carrinho de Compras</SheetTitle>
+                  <SheetTitle>{checkoutMode ? "Dados para entrega" : "Carrinho de Compras"}</SheetTitle>
                   <SheetDescription>
-                    {cartItemsCount} {cartItemsCount === 1 ? "item" : "itens"} no carrinho
+                    {checkoutMode
+                      ? "Preencha os seus dados para concluir a compra e receber a confirmacao por email."
+                      : `${cartItemsCount} ${cartItemsCount === 1 ? "item" : "itens"} no carrinho`}
                   </SheetDescription>
                 </SheetHeader>
 
+                {checkoutMode ? (
+                  <form onSubmit={handleCheckout} className="mt-8 flex h-full flex-col space-y-4">
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Nome</Label>
+                        <Input
+                          value={checkoutForm.name}
+                          onChange={(event) => setCheckoutForm({ ...checkoutForm, name: event.target.value })}
+                          placeholder="O seu nome"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Telemovel</Label>
+                        <Input
+                          value={checkoutForm.phone}
+                          onChange={(event) => setCheckoutForm({ ...checkoutForm, phone: event.target.value })}
+                          placeholder="912 345 678"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Email</Label>
+                      <Input
+                        type="email"
+                        value={checkoutForm.email}
+                        onChange={(event) => setCheckoutForm({ ...checkoutForm, email: event.target.value })}
+                        placeholder="email@exemplo.com"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Morada</Label>
+                      <Input
+                        value={checkoutForm.address}
+                        onChange={(event) => setCheckoutForm({ ...checkoutForm, address: event.target.value })}
+                        placeholder="Rua, numero, codigo postal e localidade"
+                      />
+                    </div>
+
+                    <div className="rounded-lg bg-gray-50 p-4 text-sm">
+                      <div className="flex justify-between text-gray-600 mb-2">
+                        <span>Subtotal</span>
+                        <span>EUR {cartTotal.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-gray-600 mb-2">
+                        <span>IVA (23%)</span>
+                        <span>EUR {(cartTotal * 0.23).toFixed(2)}</span>
+                      </div>
+                      <Separator className="my-3" />
+                      <div className="flex justify-between font-semibold text-gray-900">
+                        <span>Total</span>
+                        <span>EUR {orderTotal.toFixed(2)}</span>
+                      </div>
+                    </div>
+
+                    <div className="mt-auto flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                      <Button type="button" variant="outline" onClick={() => setCheckoutMode(false)}>
+                        Voltar ao carrinho
+                      </Button>
+                      <Button type="submit" disabled={checkoutLoading}>
+                        {checkoutLoading ? "A finalizar..." : "Confirmar compra"}
+                      </Button>
+                    </div>
+                  </form>
+                ) : (
                 <div className="mt-8 flex flex-col h-full">
                   <div className="flex-1 overflow-y-auto">
                     {cart.length === 0 ? (
@@ -260,22 +389,19 @@ export function PartsPage() {
                       <Separator className="my-4" />
                       <div className="flex justify-between mb-6">
                         <span>Total</span>
-                        <span className="text-blue-600">EUR {(cartTotal * 1.23).toFixed(2)}</span>
+                        <span className="text-blue-600">EUR {orderTotal.toFixed(2)}</span>
                       </div>
                       <Button
                         className="w-full"
                         size="lg"
-                        onClick={() => {
-                          toast.success("Encomenda enviada! Entraremos em contacto em breve.");
-                          setCart([]);
-                          setCartOpen(false);
-                        }}
+                        onClick={openCheckout}
                       >
                         Finalizar Encomenda
                       </Button>
                     </div>
                   )}
                 </div>
+                )}
               </SheetContent>
             </Sheet>
           </div>
@@ -287,8 +413,8 @@ export function PartsPage() {
           <div className="mb-6">
             <p className="text-gray-600">
               {loadingParts
-                ? "A carregar pecas..."
-                : `${filteredParts.length} ${filteredParts.length === 1 ? "peca encontrada" : "pecas encontradas"}`}
+                ? "A carregar peças..."
+                : `${filteredParts.length} ${filteredParts.length === 1 ? "peça encontrada" : "peças encontradas"}`}
             </p>
             {partsError && (
               <p className="text-red-600 mt-2">{partsError}</p>
@@ -348,7 +474,7 @@ export function PartsPage() {
 
           {!loadingParts && filteredParts.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-gray-600">Nenhuma peca encontrada com esses criterios.</p>
+              <p className="text-gray-600">Nenhuma peça encontrada com esses criterios.</p>
             </div>
           )}
         </div>

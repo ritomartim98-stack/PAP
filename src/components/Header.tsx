@@ -69,9 +69,14 @@ export function Header({ currentPage, onNavigate, cartItemsCount = 0, isLoggedIn
             {isLoggedIn ? (
               <>
                 {isAdmin && (
-                  <Button variant="outline" onClick={() => onNavigate("admin-bookings")}>
-                    Admin
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button variant="outline" onClick={() => onNavigate("admin-inventory")}>
+                      Gerir Loja
+                    </Button>
+                    <Button variant="outline" onClick={() => onNavigate("admin-bookings")}>
+                      Marcacoes
+                    </Button>
+                  </div>
                 )}
                 <Button variant="outline" onClick={onLogout}>
                   <LogOut className="w-4 h-4 mr-2" />
@@ -137,16 +142,28 @@ export function Header({ currentPage, onNavigate, cartItemsCount = 0, isLoggedIn
             {isLoggedIn ? (
               <>
                 {isAdmin && (
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      onNavigate("admin-bookings");
-                      setMobileMenuOpen(false);
-                    }}
-                    className="w-full"
-                  >
-                    Admin
-                  </Button>
+                  <>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        onNavigate("admin-inventory");
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full"
+                    >
+                      Gerir Loja
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        onNavigate("admin-bookings");
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full"
+                    >
+                      Marcacoes
+                    </Button>
+                  </>
                 )}
                 <Button
                   variant="outline"

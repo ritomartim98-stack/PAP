@@ -351,4 +351,8 @@ export function MotorcycleDetailPage({ motorcycleId, onNavigate }: MotorcycleDet
       </div>
     </div>
   );
+<<<<<<< ours
 }
+=======
+}
+>>>>>>> theirs

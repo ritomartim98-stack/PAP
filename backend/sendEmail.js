@@ -32,7 +32,7 @@ async function sendWelcomeEmail(to, username) {
   const client = getEmailClient();
   const safeUsername = escapeHtml(username);
   const imageUrl = process.env.BREVO_EMAIL_IMAGE_URL;
-  const appUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const appUrl = process.env.FRONTEND_URL || 'http://localhost:3000/';
   const imageHtml = imageUrl
     ? `
       <img
@@ -96,6 +96,75 @@ async function sendWelcomeEmail(to, username) {
   });
 }
 
+async function sendOrderSuccessEmail(to, customerName, order) {
+  const client = getEmailClient();
+  const safeCustomerName = escapeHtml(customerName);
+  const itemsHtml = order.items.map((item) => `
+    <tr>
+      <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;">${escapeHtml(item.name)}</td>
+      <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;text-align:center;">${escapeHtml(item.quantity)}</td>
+      <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;text-align:right;">${Number(item.price).toFixed(2)} EUR</td>
+    </tr>
+  `).join('');
+
+  if (!client) {
+    console.warn('Email Brevo nao enviado: configure BREVO_API_KEY e BREVO_SENDER_EMAIL no backend/.env.');
+    return;
+  }
+
+  await client.transactionalEmails.sendTransacEmail({
+    sender: {
+      email: process.env.BREVO_SENDER_EMAIL,
+      name: process.env.BREVO_SENDER_NAME || 'Moto Oficina'
+    },
+    to: [
+      {
+        email: to,
+        name: customerName
+      }
+    ],
+    subject: 'Compra efetuada com sucesso',
+    htmlContent: `
+      <div style="display:none;max-height:0;overflow:hidden;">
+        A sua compra foi efetuada com sucesso e sera enviada o mais rapido possivel.
+      </div>
+      <div style="margin:0;padding:32px 16px;background:#f3f4f6;font-family:Arial,sans-serif;color:#1f2937;">
+        <div style="max-width:640px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:10px;padding:32px;">
+          <p style="margin:0 0 8px 0;font-size:13px;font-weight:bold;letter-spacing:.08em;text-transform:uppercase;color:#2563eb;">
+            Motaroad
+          </p>
+          <h2 style="margin:0 0 18px 0;font-size:24px;line-height:1.3;color:#111827;">
+            Compra bem sucedida, ${safeCustomerName}
+          </h2>
+          <p style="margin:0 0 14px 0;font-size:15px;line-height:1.7;">
+            A sua compra foi registada com sucesso. Vamos preparar a encomenda e envia-la o mais rapido possivel.
+          </p>
+          <p style="margin:0 0 24px 0;font-size:15px;line-height:1.7;">
+            Entraremos em contacto caso seja necessario confirmar algum detalhe da entrega.
+          </p>
+          <table style="width:100%;border-collapse:collapse;margin:0 0 20px 0;font-size:14px;">
+            <thead>
+              <tr>
+                <th style="padding:0 0 10px 0;text-align:left;border-bottom:2px solid #111827;">Produto</th>
+                <th style="padding:0 0 10px 0;text-align:center;border-bottom:2px solid #111827;">Qtd.</th>
+                <th style="padding:0 0 10px 0;text-align:right;border-bottom:2px solid #111827;">Preco</th>
+              </tr>
+            </thead>
+            <tbody>${itemsHtml}</tbody>
+          </table>
+          <p style="margin:0;font-size:16px;font-weight:bold;text-align:right;color:#111827;">
+            Total: ${Number(order.total).toFixed(2)} EUR
+          </p>
+        </div>
+        <p style="margin:18px 0 0 0;text-align:center;font-size:12px;line-height:1.6;color:#6b7280;">
+          Este email foi enviado automaticamente pela Motaroad. Por favor, nao responda a esta mensagem.
+        </p>
+      </div>
+    `
+  });
+}
+
 module.exports = {
-  sendWelcomeEmail
+  sendWelcomeEmail,
+  sendOrderSuccessEmail
 };

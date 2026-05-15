@@ -222,8 +222,8 @@ export function HomePage({ onNavigate }: HomePageProps) {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            {services.map((service, index) => (
+          <div className="grid md:grid-cols-2 gap-6 mb-12 max-w-4xl mx-auto">
+            {services.filter((_, index) => index === 0 || index === 4).map((service, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}

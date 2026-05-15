@@ -11,6 +11,7 @@ import { ContactPage } from "./pages/ContactPage";
 import LoginPage from "./pages/login";
 import RegisterPage from "./pages/register";
 import { AdminBookingsPage } from "./pages/AdminBookingsPage";
+import { AdminInventoryPage } from "./pages/AdminInventoryPage";
 import { Toaster } from "./components/ui/sonner";
 
 export default function App() {
@@ -87,6 +88,8 @@ export default function App() {
         return <RegisterPage onNavigate={handleNavigate} onRegister={refreshAuthState} />;
       case "admin-bookings":
         return isAdmin ? <AdminBookingsPage onNavigate={handleNavigate} /> : <HomePage onNavigate={handleNavigate} />;
+      case "admin-inventory":
+        return isAdmin ? <AdminInventoryPage onNavigate={handleNavigate} /> : <HomePage onNavigate={handleNavigate} />;
       default:
         return <HomePage onNavigate={handleNavigate} />;
     }

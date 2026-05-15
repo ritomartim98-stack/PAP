@@ -32,7 +32,7 @@ if (fs.existsSync(envPath)) {
   });
 }
 
-const { sendWelcomeEmail } = require('./sendEmail');
+const { sendWelcomeEmail, sendOrderSuccessEmail } = require('./sendEmail');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -100,16 +100,27 @@ function formatMotorcycle(row, req) {
 
   return {
     id: row.id,
+    marca: row.marca,
+    modelo: row.modelo,
     name: `${row.marca} ${row.modelo}`,
+    tipo: row.tipo || 'Sem categoria',
     category: row.tipo || 'Sem categoria',
     price: Number(row.preco),
+    preco: Number(row.preco),
     year: Number(row.ano),
+    ano: Number(row.ano),
     km: isMotocross ? undefined : row.quilometragem,
+    quilometragem: row.quilometragem,
     horas: isMotocross ? row.horas : undefined,
     image,
+    imagem: row.imagem || '',
+    cilindrada: row.cilindrada,
+    potencia: row.potencia,
+    extras: row.extras || '',
     specs,
     condition: row.quilometragem > 0 || row.horas > 0 ? 'Usada' : 'Nova',
     description: row.descricao || '',
+    descricao: row.descricao || '',
     images: [image],
     fuel: 'Gasolina',
     transmission: 'Manual',
@@ -178,6 +189,16 @@ function verifyToken(req, res, next) {
     }
 
     req.user = user;
+    next();
+  });
+}
+
+function verifyAdmin(req, res, next) {
+  verifyToken(req, res, () => {
+    if (req.user?.perfil !== 'admin') {
+      return res.status(403).json({ message: 'Acesso reservado ao administrador.' });
+    }
+
     next();
   });
 }
@@ -402,10 +423,93 @@ app.get('/api/pecas', (req, res) => {
 
   db.query(sql, (err, results) => {
     if (err) {
-      return res.status(500).json({ message: 'Erro ao buscar pecas.' });
+      return res.status(500).json({ message: 'Erro ao buscar peças.' });
     }
 
     res.json(results.map((row) => formatPart(row, req)));
+  });
+});
+
+app.post('/api/admin/pecas', verifyAdmin, (req, res) => {
+  const nome = (req.body.nome || req.body.name || '').trim();
+  const categoria = (req.body.categoria || req.body.category || '').trim();
+  const referencia = (req.body.referencia || req.body.reference || '').trim();
+  const imagem = (req.body.imagem || req.body.image || '').trim();
+  const preco = Number(req.body.preco ?? req.body.price);
+  const stock = Number(req.body.stock);
+
+  if (!nome || !categoria || !Number.isFinite(preco) || !Number.isFinite(stock)) {
+    return res.status(400).json({ message: 'Preencha nome, categoria, preco e stock.' });
+  }
+
+  const sql = `
+    INSERT INTO peca (categoria, nome, referencia, preco, imagem, stock, datacriacao, ativo)
+    VALUES (?, ?, ?, ?, ?, ?, NOW(), 1)
+  `;
+
+  db.query(sql, [categoria, nome, referencia, preco, imagem, stock], (err, result) => {
+    if (err) {
+      return res.status(500).json({ message: 'Erro ao criar peça.' });
+    }
+
+    db.query('SELECT * FROM peca WHERE idpeca = ?', [result.insertId], (selectErr, rows) => {
+      if (selectErr) {
+        return res.status(500).json({ message: 'Peça criada, mas nao foi possivel carregar os dados.' });
+      }
+
+      res.status(201).json(formatPart(rows[0], req));
+    });
+  });
+});
+
+app.put('/api/admin/pecas/:id', verifyAdmin, (req, res) => {
+  const nome = (req.body.nome || req.body.name || '').trim();
+  const categoria = (req.body.categoria || req.body.category || '').trim();
+  const referencia = (req.body.referencia || req.body.reference || '').trim();
+  const imagem = (req.body.imagem || req.body.image || '').trim();
+  const preco = Number(req.body.preco ?? req.body.price);
+  const stock = Number(req.body.stock);
+
+  if (!nome || !categoria || !Number.isFinite(preco) || !Number.isFinite(stock)) {
+    return res.status(400).json({ message: 'Preencha nome, categoria, preco e stock.' });
+  }
+
+  const sql = `
+    UPDATE peca
+    SET categoria = ?, nome = ?, referencia = ?, preco = ?, imagem = ?, stock = ?, ativo = 1
+    WHERE idpeca = ?
+  `;
+
+  db.query(sql, [categoria, nome, referencia, preco, imagem, stock, req.params.id], (err, result) => {
+    if (err) {
+      return res.status(500).json({ message: 'Erro ao atualizar peça.' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Peça nao encontrada.' });
+    }
+
+    db.query('SELECT * FROM peca WHERE idpeca = ?', [req.params.id], (selectErr, rows) => {
+      if (selectErr) {
+        return res.status(500).json({ message: 'Peça atualizada, mas nao foi possivel carregar os dados.' });
+      }
+
+      res.json(formatPart(rows[0], req));
+    });
+  });
+});
+
+app.delete('/api/admin/pecas/:id', verifyAdmin, (req, res) => {
+  db.query('UPDATE peca SET ativo = 0 WHERE idpeca = ?', [req.params.id], (err, result) => {
+    if (err) {
+      return res.status(500).json({ message: 'Erro ao eliminar peça.' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Peça nao encontrada.' });
+    }
+
+    res.json({ message: 'Peça eliminada.' });
   });
 });
 
@@ -467,6 +571,161 @@ app.get('/api/motorcycles/:id', (req, res) => {
 
     res.json(formatMotorcycle(results[0], req));
   });
+});
+
+app.post('/api/admin/motorcycles', verifyAdmin, (req, res) => {
+  const marca = (req.body.marca || '').trim();
+  const modelo = (req.body.modelo || '').trim();
+  const imagem = (req.body.imagem || req.body.image || '').trim();
+  const tipo = (req.body.tipo || req.body.category || '').trim();
+  const extras = (req.body.extras || '').trim();
+  const descricao = (req.body.descricao || req.body.description || '').trim();
+  const ano = Number(req.body.ano ?? req.body.year);
+  const preco = Number(req.body.preco ?? req.body.price);
+  const cilindrada = Number(req.body.cilindrada || 0);
+  const potencia = Number(req.body.potencia || 0);
+  const quilometragem = Number(req.body.quilometragem || req.body.km || 0);
+  const horas = Number(req.body.horas || 0);
+
+  if (!marca || !modelo || !imagem || !tipo || !Number.isFinite(ano) || !Number.isFinite(preco)) {
+    return res.status(400).json({ message: 'Preencha marca, modelo, ano, preco, imagem e tipo.' });
+  }
+
+  const sql = `
+    INSERT INTO motas (marca, modelo, ano, preco, imagem, tipo, cilindrada, potencia, quilometragem, horas, extras, descricao)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  db.query(
+    sql,
+    [marca, modelo, ano, preco, imagem, tipo, cilindrada, potencia, quilometragem, horas, extras, descricao],
+    (err, result) => {
+      if (err) {
+        return res.status(500).json({ message: 'Erro ao criar mota.' });
+      }
+
+      db.query('SELECT * FROM motas WHERE id = ?', [result.insertId], (selectErr, rows) => {
+        if (selectErr) {
+          return res.status(500).json({ message: 'Mota criada, mas nao foi possivel carregar os dados.' });
+        }
+
+        res.status(201).json(formatMotorcycle(rows[0], req));
+      });
+    }
+  );
+});
+
+app.put('/api/admin/motorcycles/:id', verifyAdmin, (req, res) => {
+  const marca = (req.body.marca || '').trim();
+  const modelo = (req.body.modelo || '').trim();
+  const imagem = (req.body.imagem || req.body.image || '').trim();
+  const tipo = (req.body.tipo || req.body.category || '').trim();
+  const extras = (req.body.extras || '').trim();
+  const descricao = (req.body.descricao || req.body.description || '').trim();
+  const ano = Number(req.body.ano ?? req.body.year);
+  const preco = Number(req.body.preco ?? req.body.price);
+  const cilindrada = Number(req.body.cilindrada || 0);
+  const potencia = Number(req.body.potencia || 0);
+  const quilometragem = Number(req.body.quilometragem || req.body.km || 0);
+  const horas = Number(req.body.horas || 0);
+
+  if (!marca || !modelo || !imagem || !tipo || !Number.isFinite(ano) || !Number.isFinite(preco)) {
+    return res.status(400).json({ message: 'Preencha marca, modelo, ano, preco, imagem e tipo.' });
+  }
+
+  const sql = `
+    UPDATE motas
+    SET marca = ?, modelo = ?, ano = ?, preco = ?, imagem = ?, tipo = ?, cilindrada = ?,
+        potencia = ?, quilometragem = ?, horas = ?, extras = ?, descricao = ?
+    WHERE id = ?
+  `;
+
+  db.query(
+    sql,
+    [marca, modelo, ano, preco, imagem, tipo, cilindrada, potencia, quilometragem, horas, extras, descricao, req.params.id],
+    (err, result) => {
+      if (err) {
+        return res.status(500).json({ message: 'Erro ao atualizar mota.' });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: 'Mota nao encontrada.' });
+      }
+
+      db.query('SELECT * FROM motas WHERE id = ?', [req.params.id], (selectErr, rows) => {
+        if (selectErr) {
+          return res.status(500).json({ message: 'Mota atualizada, mas nao foi possivel carregar os dados.' });
+        }
+
+        res.json(formatMotorcycle(rows[0], req));
+      });
+    }
+  );
+});
+
+app.delete('/api/admin/motorcycles/:id', verifyAdmin, (req, res) => {
+  db.query('DELETE FROM motas WHERE id = ?', [req.params.id], (err, result) => {
+    if (err) {
+      return res.status(500).json({ message: 'Erro ao eliminar mota.' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Mota nao encontrada.' });
+    }
+
+    res.json({ message: 'Mota eliminada.' });
+  });
+});
+
+app.post('/api/checkout', async (req, res) => {
+  const customer = req.body.customer || {};
+  const items = Array.isArray(req.body.items) ? req.body.items : [];
+  const name = (customer.name || '').trim();
+  const email = (customer.email || '').trim().toLowerCase();
+  const phone = (customer.phone || '').trim();
+  const address = (customer.address || '').trim();
+
+  if (!name || !email || !phone || !address) {
+    return res.status(400).json({ message: 'Preencha nome, email, telemovel e morada.' });
+  }
+
+  if (items.length === 0) {
+    return res.status(400).json({ message: 'O carrinho esta vazio.' });
+  }
+
+  const orderItems = items.map((item) => ({
+    id: Number(item.id),
+    name: String(item.name || ''),
+    price: Number(item.price),
+    quantity: Number(item.quantity)
+  }));
+
+  const hasInvalidItem = orderItems.some((item) => (
+    !item.id ||
+    !item.name ||
+    !Number.isFinite(item.price) ||
+    !Number.isFinite(item.quantity) ||
+    item.quantity <= 0
+  ));
+
+  if (hasInvalidItem) {
+    return res.status(400).json({ message: 'Existem produtos invalidos no carrinho.' });
+  }
+
+  const total = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0) * 1.23;
+
+  try {
+    await sendOrderSuccessEmail(email, name, {
+      customer: { name, email, phone, address },
+      items: orderItems,
+      total
+    });
+
+    res.status(201).json({ message: 'Compra finalizada com sucesso.' });
+  } catch (err) {
+    console.error('Erro ao enviar email da encomenda:', err.message);
+    res.status(500).json({ message: 'Compra registada, mas houve erro ao enviar o email.' });
+  }
 });
 
 app.post('/api/marcacao', (req, res) => {
