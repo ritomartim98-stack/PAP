@@ -35,8 +35,9 @@ if (fs.existsSync(envPath)) {
 const { sendWelcomeEmail, sendOrderSuccessEmail } = require('./sendEmail');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 const JWT_SECRET = process.env.JWT_SECRET || 'pap-dev-secret';
+const DEFAULT_MOTORCYCLE_IMAGE = 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=1080&q=80';
 const defaultServices = [
   ['Revisao Completa', 'Revisao geral da mota', 150, 150.00],
   ['Mudanca de Oleo', 'Mudanca de oleo e filtro', 30, 50.00],
@@ -434,7 +435,7 @@ app.post('/api/admin/pecas', verifyAdmin, (req, res) => {
   const nome = (req.body.nome || req.body.name || '').trim();
   const categoria = (req.body.categoria || req.body.category || '').trim();
   const referencia = (req.body.referencia || req.body.reference || '').trim();
-  const imagem = (req.body.imagem || req.body.image || '').trim();
+  const imagem = (req.body.imagem || req.body.image || DEFAULT_MOTORCYCLE_IMAGE).trim();
   const preco = Number(req.body.preco ?? req.body.price);
   const stock = Number(req.body.stock);
 
@@ -587,8 +588,8 @@ app.post('/api/admin/motorcycles', verifyAdmin, (req, res) => {
   const quilometragem = Number(req.body.quilometragem || req.body.km || 0);
   const horas = Number(req.body.horas || 0);
 
-  if (!marca || !modelo || !imagem || !tipo || !Number.isFinite(ano) || !Number.isFinite(preco)) {
-    return res.status(400).json({ message: 'Preencha marca, modelo, ano, preco, imagem e tipo.' });
+  if (!marca || !modelo || !tipo || !Number.isFinite(ano) || !Number.isFinite(preco)) {
+    return res.status(400).json({ message: 'Preencha marca, modelo, ano, preco e tipo.' });
   }
 
   const sql = `
@@ -618,7 +619,7 @@ app.post('/api/admin/motorcycles', verifyAdmin, (req, res) => {
 app.put('/api/admin/motorcycles/:id', verifyAdmin, (req, res) => {
   const marca = (req.body.marca || '').trim();
   const modelo = (req.body.modelo || '').trim();
-  const imagem = (req.body.imagem || req.body.image || '').trim();
+  const imagem = (req.body.imagem || req.body.image || DEFAULT_MOTORCYCLE_IMAGE).trim();
   const tipo = (req.body.tipo || req.body.category || '').trim();
   const extras = (req.body.extras || '').trim();
   const descricao = (req.body.descricao || req.body.description || '').trim();
@@ -629,8 +630,8 @@ app.put('/api/admin/motorcycles/:id', verifyAdmin, (req, res) => {
   const quilometragem = Number(req.body.quilometragem || req.body.km || 0);
   const horas = Number(req.body.horas || 0);
 
-  if (!marca || !modelo || !imagem || !tipo || !Number.isFinite(ano) || !Number.isFinite(preco)) {
-    return res.status(400).json({ message: 'Preencha marca, modelo, ano, preco, imagem e tipo.' });
+  if (!marca || !modelo || !tipo || !Number.isFinite(ano) || !Number.isFinite(preco)) {
+    return res.status(400).json({ message: 'Preencha marca, modelo, ano, preco e tipo.' });
   }
 
   const sql = `

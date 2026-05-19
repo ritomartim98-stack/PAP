@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "../components/ui/sheet";
 import { Separator } from "../components/ui/separator";
+import { apiUrl } from "../lib/api";
 
 interface Part {
   id: number;
@@ -49,7 +50,7 @@ export function PartsPage() {
   });
 
   useEffect(() => {
-    fetch("http://localhost:3001/api/pecas", { cache: "no-store" })
+    fetch(apiUrl("/api/pecas"), { cache: "no-store" })
       .then((response) => {
         if (!response.ok) {
           throw new Error("Erro ao buscar peças");
@@ -148,7 +149,7 @@ export function PartsPage() {
     try {
       setCheckoutLoading(true);
 
-      const response = await fetch("http://localhost:3001/api/checkout", {
+      const response = await fetch(apiUrl("/api/checkout"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

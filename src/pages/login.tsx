@@ -4,6 +4,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Mail, Lock } from 'lucide-react';
+import { apiUrl } from '../lib/api';
 
 export default function LoginPage({ onNavigate, onLogin }) {
   const [email, setEmail] = useState('');
@@ -22,7 +23,7 @@ export default function LoginPage({ onNavigate, onLogin }) {
     try {
       setLoading(true);
 
-      const res = await fetch('http://localhost:3001/api/login', {
+      const res = await fetch(apiUrl('/api/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })

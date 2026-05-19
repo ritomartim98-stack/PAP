@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { motion } from "motion/react";
 import { Calendar as CalendarIcon, Clock, CheckCircle2 } from "lucide-react";
 import { Badge } from "../components/ui/badge";
+import { apiUrl } from "../lib/api";
 
 const timeSlots = [
   "09:00", "10:00", "11:00", "12:00",
@@ -41,7 +42,7 @@ export function BookingPage() {
   const selectedService = services.find((s) => s.id === service);
 
   useEffect(() => {
-    fetch("http://localhost:3001/api/servicos")
+    fetch(apiUrl("/api/servicos"))
       .then((res) => {
         if (!res.ok) {
           throw new Error("Erro ao carregar servicos");
@@ -76,7 +77,7 @@ export function BookingPage() {
     try {
       setSubmitting(true);
 
-      const res = await fetch("http://localhost:3001/api/marcacao", {
+      const res = await fetch(apiUrl("/api/marcacao"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

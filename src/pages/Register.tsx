@@ -4,6 +4,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { User, Mail, Lock } from 'lucide-react';
+import { apiUrl } from '../lib/api';
 
 export default function RegisterPage({ onNavigate, onRegister }) {
   const [name, setName] = useState('');
@@ -37,7 +38,7 @@ export default function RegisterPage({ onNavigate, onRegister }) {
     try {
       setLoading(true);
 
-      const res = await fetch('http://localhost:3001/api/register', {
+      const res = await fetch(apiUrl('/api/register'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

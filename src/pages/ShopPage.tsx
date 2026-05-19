@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
@@ -8,27 +8,14 @@ import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { Search, SlidersHorizontal, Heart, Eye } from "lucide-react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
+import { API_BASE_URL, fallbackMotorcycles, type Motorcycle } from "../data/motorcycles";
 
 interface ShopPageProps {
   onNavigate: (page: string, motorcycleId?: number) => void;
 }
 
-interface Motorcycle {
-  id: number;
-  name: string;
-  category: string;
-  price: number;
-  year: number;
-  km?: number;
-  horas?: number;
-  image: string;
-  specs: string[];
-  condition: string;
-}
-
-
 export function ShopPage({ onNavigate }: ShopPageProps) {
-  const [motorcycles, setMotorcycles] = useState<Motorcycle[]>([]);
+  const [motorcycles, setMotorcycles] = useState<Motorcycle[]>(fallbackMotorcycles);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -36,41 +23,39 @@ export function ShopPage({ onNavigate }: ShopPageProps) {
   const [favorites, setFavorites] = useState<number[]>([]);
 
   useEffect(() => {
-    // ALTERACAO: a loja busca as motas da tabela "motas" atraves do backend ligado ao XAMPP/MySQL.
-    fetch('http://localhost:3001/api/motorcycles')
-      .then(response => {
+    fetch(`${API_BASE_URL}/api/motorcycles`, { cache: "no-store" })
+      .then((response) => {
         if (!response.ok) {
-          throw new Error("Nao foi possivel carregar as motas da base de dados");
+          throw new Error("Não foi possível carregar as motas da base de dados");
         }
 
         return response.json();
       })
-      .then(data => {
-        setMotorcycles(data);
-        setLoading(false);
+      .then((data: Motorcycle[]) => {
+        setMotorcycles(data.length > 0 ? data : fallbackMotorcycles);
       })
-      .catch(error => {
-        console.error('Error fetching motorcycles:', error);
-        toast.error("Nao foi possivel carregar as motas da base de dados");
-        setLoading(false);
-      });
+      .catch((error) => {
+        console.error(error);
+        setMotorcycles(fallbackMotorcycles);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
-  const filteredMotorcycles = motorcycles.filter(moto => {
+  const filteredMotorcycles = motorcycles.filter((moto) => {
     const matchesSearch = moto.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === "all" || moto.category === categoryFilter;
-    const matchesPrice = 
+    const matchesPrice =
       priceFilter === "all" ||
       (priceFilter === "low" && moto.price < 8000) ||
       (priceFilter === "medium" && moto.price >= 8000 && moto.price < 12000) ||
       (priceFilter === "high" && moto.price >= 12000);
-    
+
     return matchesSearch && matchesCategory && matchesPrice;
   });
 
   const toggleFavorite = (id: number) => {
     if (favorites.includes(id)) {
-      setFavorites(favorites.filter(fav => fav !== id));
+      setFavorites(favorites.filter((fav) => fav !== id));
       toast.success("Removido dos favoritos");
     } else {
       setFavorites([...favorites, id]);
@@ -80,8 +65,7 @@ export function ShopPage({ onNavigate }: ShopPageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero */}
-      <section className="bg-gray-900 text-white py-16">
+      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -90,14 +74,13 @@ export function ShopPage({ onNavigate }: ShopPageProps) {
           >
             <h1 className="text-white mb-4">Loja de Motas</h1>
             <p className="text-blue-100 max-w-2xl">
-              Encontre a mota perfeita para si. Todas as nossas motas são cuidadosamente 
+              Encontre a mota perfeita para si. Todas as nossas motas são cuidadosamente
               inspecionadas e vêm com garantia.
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Filters */}
       <section className="bg-white border-b sticky top-[73px] z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row gap-4">
@@ -110,7 +93,7 @@ export function ShopPage({ onNavigate }: ShopPageProps) {
                 className="pl-10"
               />
             </div>
-            
+
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger className="w-full md:w-48">
                 <SlidersHorizontal className="w-4 h-4 mr-2" />
@@ -141,12 +124,13 @@ export function ShopPage({ onNavigate }: ShopPageProps) {
         </div>
       </section>
 
-      {/* Motorcycles Grid */}
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-6">
             <p className="text-gray-600">
-              {loading ? 'Carregando...' : `${filteredMotorcycles.length} ${filteredMotorcycles.length === 1 ? 'mota encontrada' : 'motas encontradas'}`}
+              {loading
+                ? "A carregar motas..."
+                : `${filteredMotorcycles.length} ${filteredMotorcycles.length === 1 ? "mota encontrada" : "motas encontradas"}`}
             </p>
           </div>
 
@@ -172,14 +156,13 @@ export function ShopPage({ onNavigate }: ShopPageProps) {
                         className="rounded-full"
                         onClick={() => toggleFavorite(moto.id)}
                       >
-                        <Heart 
-                          className={`w-5 h-5 ${favorites.includes(moto.id) ? 'fill-red-500 text-red-500' : ''}`} 
-                        />
+                        <Heart className={`w-5 h-5 ${favorites.includes(moto.id) ? "fill-red-500 text-red-500" : ""}`} />
                       </Button>
                       <Button
                         size="icon"
                         variant="secondary"
                         className="rounded-full"
+                        onClick={() => onNavigate("motorcycle-detail", moto.id)}
                       >
                         <Eye className="w-5 h-5" />
                       </Button>
@@ -209,12 +192,10 @@ export function ShopPage({ onNavigate }: ShopPageProps) {
                         ))}
                       </div>
                       <div className="text-sm text-gray-600">
-                        {moto.km !== undefined 
-                          ? `${moto.km.toLocaleString('pt-PT')} km` 
-                          : `${moto.horas} horas`}
+                        {moto.km !== undefined ? `${moto.km.toLocaleString("pt-PT")} km` : `${moto.horas} horas`}
                       </div>
                       <div className="text-blue-600 text-xl">
-                        €{moto.price.toLocaleString('pt-PT')}
+                        €{moto.price.toLocaleString("pt-PT")}
                       </div>
                     </div>
                   </CardContent>
@@ -223,8 +204,8 @@ export function ShopPage({ onNavigate }: ShopPageProps) {
                     <Button className="flex-1" onClick={() => toast.success("Contactaremos em breve!")}>
                       Contactar
                     </Button>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       className="flex-1"
                       onClick={() => onNavigate("motorcycle-detail", moto.id)}
                     >

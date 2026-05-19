@@ -13,6 +13,7 @@ import {
 } from "../components/ui/table";
 import { Calendar, Search, Filter, CheckCircle, XCircle, Clock, Trash2 } from "lucide-react";
 import { motion } from "motion/react";
+import { apiUrl } from "../lib/api";
 
 interface Booking {
   id: string;
@@ -66,7 +67,7 @@ export function AdminBookingsPage({ onNavigate }: { onNavigate: (page: string) =
   const [authPassword, setAuthPassword] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:3001/api/marcacoes")
+    fetch(apiUrl("/api/marcacoes"))
       .then((res) => {
         if (!res.ok) {
           throw new Error("Erro ao carregar marcacoes");
@@ -95,7 +96,7 @@ export function AdminBookingsPage({ onNavigate }: { onNavigate: (page: string) =
     setBookings(updatedBookings);
 
     try {
-      const res = await fetch(`http://localhost:3001/api/marcacoes/${id}/status`, {
+      const res = await fetch(apiUrl(`/api/marcacoes/${id}/status`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status })
@@ -117,7 +118,7 @@ export function AdminBookingsPage({ onNavigate }: { onNavigate: (page: string) =
     setSelectedBooking(null);
 
     try {
-      const res = await fetch(`http://localhost:3001/api/marcacoes/${id}`, {
+      const res = await fetch(apiUrl(`/api/marcacoes/${id}`), {
         method: "DELETE"
       });
 

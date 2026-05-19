@@ -17,6 +17,8 @@ import {
   TableHeader,
   TableRow
 } from "../components/ui/table";
+import { DEFAULT_MOTORCYCLE_IMAGE } from "../data/motorcycles";
+import { apiUrl } from "../lib/api";
 
 interface AdminInventoryPageProps {
   onNavigate: (page: string) => void;
@@ -78,6 +80,20 @@ const emptyPart = {
 const motorcycleCategoryOptions = ["Sport", "Motocross", "Cruiser", "Adventure", "Touring", "Scooter"];
 const partCategoryOptions = ["Travoes", "Motor", "Transmissao", "Pneus", "Lubrificantes", "Eletronica", "Suspensao", "Escape"];
 
+function normalizeImagePath(image: string) {
+  const trimmedImage = image.trim();
+
+  if (!trimmedImage) {
+    return DEFAULT_MOTORCYCLE_IMAGE;
+  }
+
+  if (trimmedImage.startsWith("http") || trimmedImage.startsWith("uploads/")) {
+    return trimmedImage;
+  }
+
+  return `uploads/${trimmedImage}`;
+}
+
 export function AdminInventoryPage({ onNavigate }: AdminInventoryPageProps) {
   const [section, setSection] = useState<Section>("motorcycles");
   const [motorcycles, setMotorcycles] = useState<Motorcycle[]>([]);
@@ -89,12 +105,10 @@ export function AdminInventoryPage({ onNavigate }: AdminInventoryPageProps) {
   const [motorcycleForm, setMotorcycleForm] = useState(emptyMotorcycle);
   const [partForm, setPartForm] = useState(emptyPart);
 
-  const token = useMemo(() => localStorage.getItem("token") || "", []);
-
-  const authHeaders = {
+  const getAuthHeaders = () => ({
     "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`
-  };
+    Authorization: `Bearer ${localStorage.getItem("token") || ""}`
+  });
 
   const motorcycleCategories = useMemo(
     () => Array.from(new Set([...motorcycleCategoryOptions, ...motorcycles.map((motorcycle) => motorcycle.tipo).filter(Boolean)])),
@@ -110,8 +124,8 @@ export function AdminInventoryPage({ onNavigate }: AdminInventoryPageProps) {
 
     try {
       const [motorcyclesRes, partsRes] = await Promise.all([
-        fetch("http://localhost:3001/api/motorcycles", { cache: "no-store" }),
-        fetch("http://localhost:3001/api/pecas", { cache: "no-store" })
+        fetch(apiUrl("/api/motorcycles"), { cache: "no-store" }),
+        fetch(apiUrl("/api/pecas"), { cache: "no-store" })
       ]);
 
       if (!motorcyclesRes.ok || !partsRes.ok) {
@@ -177,16 +191,20 @@ export function AdminInventoryPage({ onNavigate }: AdminInventoryPageProps) {
   const saveMotorcycle = async (event: FormEvent) => {
     event.preventDefault();
     setSaving(true);
+    const payload = {
+      ...motorcycleForm,
+      imagem: normalizeImagePath(motorcycleForm.imagem)
+    };
 
     const url = editingMotorcycleId
-      ? `http://localhost:3001/api/admin/motorcycles/${editingMotorcycleId}`
-      : "http://localhost:3001/api/admin/motorcycles";
+      ? apiUrl(`/api/admin/motorcycles/${editingMotorcycleId}`)
+      : apiUrl("/api/admin/motorcycles");
 
     try {
       const res = await fetch(url, {
         method: editingMotorcycleId ? "PUT" : "POST",
-        headers: authHeaders,
-        body: JSON.stringify(motorcycleForm)
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload)
       });
       const data = await res.json();
 
@@ -209,13 +227,13 @@ export function AdminInventoryPage({ onNavigate }: AdminInventoryPageProps) {
     setSaving(true);
 
     const url = editingPartId
-      ? `http://localhost:3001/api/admin/pecas/${editingPartId}`
-      : "http://localhost:3001/api/admin/pecas";
+      ? apiUrl(`/api/admin/pecas/${editingPartId}`)
+      : apiUrl("/api/admin/pecas");
 
     try {
       const res = await fetch(url, {
         method: editingPartId ? "PUT" : "POST",
-        headers: authHeaders,
+        headers: getAuthHeaders(),
         body: JSON.stringify(partForm)
       });
       const data = await res.json();
@@ -238,9 +256,9 @@ export function AdminInventoryPage({ onNavigate }: AdminInventoryPageProps) {
     if (!window.confirm("Eliminar esta mota da loja?")) return;
 
     try {
-      const res = await fetch(`http://localhost:3001/api/admin/motorcycles/${id}`, {
+      const res = await fetch(apiUrl(`/api/admin/motorcycles/${id}`), {
         method: "DELETE",
-        headers: authHeaders
+        headers: getAuthHeaders()
       });
 
       if (!res.ok) {
@@ -259,9 +277,9 @@ export function AdminInventoryPage({ onNavigate }: AdminInventoryPageProps) {
     if (!window.confirm("Eliminar esta peça da loja?")) return;
 
     try {
-      const res = await fetch(`http://localhost:3001/api/admin/pecas/${id}`, {
+      const res = await fetch(apiUrl(`/api/admin/pecas/${id}`), {
         method: "DELETE",
-        headers: authHeaders
+        headers: getAuthHeaders()
       });
 
       if (!res.ok) {
