@@ -65,7 +65,7 @@ export function ShopPage({ onNavigate }: ShopPageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
+      <section className="bg-gray-900 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -73,7 +73,7 @@ export function ShopPage({ onNavigate }: ShopPageProps) {
             transition={{ duration: 0.6 }}
           >
             <h1 className="text-white mb-4">Loja de Motas</h1>
-            <p className="text-blue-100 max-w-2xl">
+            <p className="text-gray-300 max-w-2xl">
               Encontre a mota perfeita para si. Todas as nossas motas são cuidadosamente
               inspecionadas e vêm com garantia.
             </p>

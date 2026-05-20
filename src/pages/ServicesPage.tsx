@@ -152,8 +152,8 @@ export function ServicesPage({ onNavigate }: ServicesPageProps) {
                 <Mail className="w-6 h-6 text-blue-400" />
               </div>
               <h3 className="text-gray-900 mb-2">E-mail</h3>
-              <p className="text-gray-600">geral@motooficina.pt</p>
-              <p className="text-gray-600">info@motooficina.pt</p>
+              <p className="text-gray-600">geral@motaroad.pt</p>
+              <p className="text-gray-600">info@motaroad.pt</p>
             </motion.div>
 
             <motion.div

@@ -44,10 +44,12 @@ export function MotorcycleDetailPage({ motorcycleId, onNavigate }: MotorcycleDet
   }, [motorcycleId]);
 
   useEffect(() => {
-    if (!motorcycle || !isAutoPlaying || motorcycle.images.length <= 1) return;
+    const galleryImages = motorcycle?.images?.length ? motorcycle.images : motorcycle ? [motorcycle.image] : [];
+
+    if (!motorcycle || !isAutoPlaying || galleryImages.length <= 1) return;
 
     const interval = setInterval(() => {
-      setSelectedImage((prev) => (prev + 1) % motorcycle.images.length);
+      setSelectedImage((prev) => (prev + 1) % galleryImages.length);
     }, 2000);
 
     return () => clearInterval(interval);
@@ -84,12 +86,14 @@ export function MotorcycleDetailPage({ motorcycleId, onNavigate }: MotorcycleDet
     toast.success("Link copiado para a área de transferência!");
   };
 
+  const galleryImages = motorcycle.images?.length ? motorcycle.images : [motorcycle.image];
+
   const nextImage = () => {
-    setSelectedImage((prev) => (prev + 1) % motorcycle.images.length);
+    setSelectedImage((prev) => (prev + 1) % galleryImages.length);
   };
 
   const prevImage = () => {
-    setSelectedImage((prev) => (prev - 1 + motorcycle.images.length) % motorcycle.images.length);
+    setSelectedImage((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
   };
 
   return (
@@ -128,7 +132,7 @@ export function MotorcycleDetailPage({ motorcycleId, onNavigate }: MotorcycleDet
                         className="absolute inset-0"
                       >
                         <ImageWithFallback
-                          src={motorcycle.images[selectedImage]}
+                          src={galleryImages[selectedImage]}
                           alt={`${motorcycle.name} - Imagem ${selectedImage + 1}`}
                           className="w-full h-[500px] object-cover"
                         />
@@ -140,7 +144,7 @@ export function MotorcycleDetailPage({ motorcycleId, onNavigate }: MotorcycleDet
                     {motorcycle.condition}
                   </Badge>
 
-                  {motorcycle.images.length > 1 && (
+                  {galleryImages.length > 1 && (
                     <>
                       <button
                         onClick={prevImage}
@@ -158,7 +162,7 @@ export function MotorcycleDetailPage({ motorcycleId, onNavigate }: MotorcycleDet
                       </button>
 
                       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex gap-2">
-                        {motorcycle.images.map((_, idx) => (
+                        {galleryImages.map((_, idx) => (
                           <button
                             key={idx}
                             onClick={() => setSelectedImage(idx)}
@@ -174,7 +178,7 @@ export function MotorcycleDetailPage({ motorcycleId, onNavigate }: MotorcycleDet
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 p-4">
-                  {motorcycle.images.map((img, idx) => (
+                  {galleryImages.map((img, idx) => (
                     <button
                       key={idx}
                       onClick={() => setSelectedImage(idx)}

@@ -14,6 +14,7 @@ import {
 import { Calendar, Search, Filter, CheckCircle, XCircle, Clock, Trash2 } from "lucide-react";
 import { motion } from "motion/react";
 import { apiUrl } from "../lib/api";
+import { toast } from "sonner";
 
 interface Booking {
   id: string;
@@ -102,12 +103,29 @@ export function AdminBookingsPage({ onNavigate }: { onNavigate: (page: string) =
         body: JSON.stringify({ status })
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        throw new Error("Erro ao atualizar marcacao");
+        throw new Error(data.message || "Erro ao atualizar marcacao");
+      }
+
+      setSelectedBooking((booking) => (
+        booking?.id === id ? { ...booking, status } : booking
+      ));
+
+      if (status === "completed") {
+        if (data.emailSent) {
+          toast.success("Serviço concluído. Email enviado ao cliente.");
+        } else {
+          toast.info(data.message || "Serviço concluído. O cliente não tem email associado.");
+        }
+      } else {
+        toast.success("Estado da marcação atualizado.");
       }
     } catch (err) {
       console.error(err);
       setBookings(previousBookings);
+      toast.error("Não foi possível atualizar a marcação.");
     }
   };
 

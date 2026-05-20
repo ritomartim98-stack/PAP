@@ -84,6 +84,7 @@ CREATE TABLE `motas` (
   `ano` year(4) NOT NULL,
   `preco` decimal(10,2) NOT NULL,
   `imagem` varchar(255) NOT NULL,
+  `imagens` text DEFAULT NULL,
   `tipo` varchar(50) DEFAULT NULL,
   `cilindrada` int(11) DEFAULT NULL,
   `potencia` int(11) DEFAULT NULL,
@@ -98,13 +99,13 @@ CREATE TABLE `motas` (
 -- Extraindo dados da tabela `motas`
 --
 
-INSERT INTO `motas` (`id`, `marca`, `modelo`, `ano`, `preco`, `imagem`, `tipo`, `cilindrada`, `potencia`, `quilometragem`, `horas`, `extras`, `descricao`, `data_adicionado`) VALUES
-(1, 'Yamaha', 'YZ 125', '2025', 8200.00, 'uploads/yz125.jpg', 'Motocross', 125, 35, 0, 0, '', 'Mota nova de motocross, leve e potente.', '2026-05-05 15:07:14'),
-(2, 'Yamaha', 'YZ125 Monster Energy Edition', '2025', 8500.00, 'uploads/yz125_monster.jpg', 'Motocross', 125, 35, 0, 0, '', 'Edição especial Monster Energy.', '2026-05-05 15:07:14'),
-(3, 'Yamaha', 'TMAX Tech MAX', '2025', 15700.00, 'uploads/tmax.jpg', 'Sport', 560, 47, 0, 0, 'ABS', 'Scooter topo de gama com tecnologia avançada.', '2026-05-05 15:07:14'),
-(4, 'Harley-Davidson', 'Street 750', '2020', 8900.00, 'uploads/harley750.jpg', 'Cruiser', 749, 53, 15000, 0, 'ABS', 'Mota confortável ideal para estrada.', '2026-05-05 15:07:14'),
-(5, 'BMW', 'F 850 GS', '2022', 12500.00, 'uploads/bmw850gs.jpg', 'Adventure', 853, 95, 18000, 0, 'ABS,TCS,Quickshifter', 'Perfeita para aventura e longas viagens.', '2026-05-05 15:07:14'),
-(6, 'Honda', 'Gold Wing', '2021', 18500.00, 'uploads/goldwing.jpg', 'Touring', 1833, 125, 22000, 0, 'DCT,Airbag,Navegação', 'Luxo e conforto máximo para viagens.', '2026-05-05 15:07:14');
+INSERT INTO `motas` (`id`, `marca`, `modelo`, `ano`, `preco`, `imagem`, `imagens`, `tipo`, `cilindrada`, `potencia`, `quilometragem`, `horas`, `extras`, `descricao`, `data_adicionado`) VALUES
+(1, 'Yamaha', 'YZ 125', '2025', 8200.00, 'uploads/yz125.jpg', NULL, 'Motocross', 125, 35, 0, 0, '', 'Mota nova de motocross, leve e potente.', '2026-05-05 15:07:14'),
+(2, 'Yamaha', 'YZ125 Monster Energy Edition', '2025', 8500.00, 'uploads/yz125_monster.jpg', NULL, 'Motocross', 125, 35, 0, 0, '', 'Edição especial Monster Energy.', '2026-05-05 15:07:14'),
+(3, 'Yamaha', 'TMAX Tech MAX', '2025', 15700.00, 'uploads/tmax.jpg', NULL, 'Sport', 560, 47, 0, 0, 'ABS', 'Scooter topo de gama com tecnologia avançada.', '2026-05-05 15:07:14'),
+(4, 'Harley-Davidson', 'Street 750', '2020', 8900.00, 'uploads/harley750.jpg', NULL, 'Cruiser', 749, 53, 15000, 0, 'ABS', 'Mota confortável ideal para estrada.', '2026-05-05 15:07:14'),
+(5, 'BMW', 'F 850 GS', '2022', 12500.00, 'uploads/bmw850gs.jpg', NULL, 'Adventure', 853, 95, 18000, 0, 'ABS,TCS,Quickshifter', 'Perfeita para aventura e longas viagens.', '2026-05-05 15:07:14'),
+(6, 'Honda', 'Gold Wing', '2021', 18500.00, 'uploads/goldwing.jpg', NULL, 'Touring', 1833, 125, 22000, 0, 'DCT,Airbag,Navegação', 'Luxo e conforto máximo para viagens.', '2026-05-05 15:07:14');
 
 -- --------------------------------------------------------
 
@@ -166,7 +167,8 @@ INSERT INTO `servico` (`idservico`, `nome`, `descricao`, `duracaoestimada`, `pre
 (6, 'Corrente e Transmissao', 'Ajuste ou troca de transmissao', 60, 90.00, 1),
 (7, 'Suspensao', 'Revisao de suspensao', 120, 180.00, 1),
 (8, 'Escape', 'Servico de escape', 90, 100.00, 1),
-(9, 'Outro', 'Servico a combinar', NULL, 0.00, 1);
+(9, 'Outro', 'Servico a combinar', NULL, 0.00, 1),
+(10, 'Visitar mota ao stand', 'Agendamento para visitar uma mota no stand', 30, 0.00, 1);
 
 -- --------------------------------------------------------
 

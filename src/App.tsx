@@ -17,7 +17,6 @@ import { Toaster } from "./components/ui/sonner";
 export default function App() {
   const [currentPage, setCurrentPage] = useState("home");
   const [selectedMotorcycleId, setSelectedMotorcycleId] = useState<number | null>(null);
-  const [cartItemsCount] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -101,7 +100,6 @@ export default function App() {
       <Header
         currentPage={currentPage}
         onNavigate={handleNavigate}
-        cartItemsCount={cartItemsCount}
         isLoggedIn={isLoggedIn}
         isAdmin={isAdmin}
         onLogout={handleLogout}

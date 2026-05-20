@@ -57,8 +57,8 @@ export function ContactPage() {
                   <CardTitle>E-mail</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600">geral@motooficina.pt</p>
-                  <p className="text-gray-600">info@motooficina.pt</p>
+                  <p className="text-gray-600">geral@motaroad.pt</p>
+                  <p className="text-gray-600">info@motaroad.pt</p>
                 </CardContent>
               </Card>
             </motion.div>

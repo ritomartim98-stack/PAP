@@ -1,18 +1,16 @@
 import { useState } from "react";
-import { Bike, Menu, X, ShoppingCart, Calendar, LogIn, LogOut, UserPlus } from "lucide-react";
+import { Bike, Menu, X, LogIn, LogOut, UserPlus } from "lucide-react";
 import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
 
 interface HeaderProps {
   currentPage: string;
   onNavigate: (page: string) => void;
-  cartItemsCount?: number;
   isLoggedIn: boolean;
   isAdmin: boolean;
   onLogout: () => void;
 }
 
-export function Header({ currentPage, onNavigate, cartItemsCount = 0, isLoggedIn, isAdmin, onLogout }: HeaderProps) {
+export function Header({ currentPage, onNavigate, isLoggedIn, isAdmin, onLogout }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
@@ -51,21 +49,6 @@ export function Header({ currentPage, onNavigate, cartItemsCount = 0, isLoggedIn
                 {item.label}
               </button>
             ))}
-            <button
-              onClick={() => onNavigate("parts")}
-              className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <ShoppingCart className="w-5 h-5 text-gray-600" />
-              {cartItemsCount > 0 && (
-                <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
-                  {cartItemsCount}
-                </Badge>
-              )}
-            </button>
-            <Button onClick={() => onNavigate("booking")}>
-              <Calendar className="w-4 h-4 mr-2" />
-              Agendar
-            </Button>
             {isLoggedIn ? (
               <>
                 {isAdmin && (
@@ -74,7 +57,7 @@ export function Header({ currentPage, onNavigate, cartItemsCount = 0, isLoggedIn
                       Gerir Loja
                     </Button>
                     <Button variant="outline" onClick={() => onNavigate("admin-bookings")}>
-                      Marcacoes
+                      Marcações
                     </Button>
                   </div>
                 )}
@@ -129,16 +112,6 @@ export function Header({ currentPage, onNavigate, cartItemsCount = 0, isLoggedIn
                 {item.label}
               </button>
             ))}
-            <Button
-              onClick={() => {
-                onNavigate("booking");
-                setMobileMenuOpen(false);
-              }}
-              className="w-full"
-            >
-              <Calendar className="w-4 h-4 mr-2" />
-              Agendar Agora
-            </Button>
             {isLoggedIn ? (
               <>
                 {isAdmin && (
@@ -161,7 +134,7 @@ export function Header({ currentPage, onNavigate, cartItemsCount = 0, isLoggedIn
                       }}
                       className="w-full"
                     >
-                      Marcacoes
+                      Marcações
                     </Button>
                   </>
                 )}

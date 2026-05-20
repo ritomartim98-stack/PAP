@@ -32,7 +32,7 @@ if (fs.existsSync(envPath)) {
   });
 }
 
-const { sendWelcomeEmail, sendOrderSuccessEmail } = require('./sendEmail');
+const { sendWelcomeEmail, sendOrderSuccessEmail, sendBookingCompletedEmail } = require('./sendEmail');
 
 const app = express();
 const PORT = process.env.PORT || 3002;
@@ -47,6 +47,7 @@ const defaultServices = [
   ['Corrente e Transmissao', 'Ajuste ou troca de transmissao', 60, 90.00],
   ['Suspensao', 'Revisao de suspensao', 120, 180.00],
   ['Escape', 'Servico de escape', 90, 100.00],
+  ['Visitar mota ao stand', 'Agendamento para visitar uma mota no stand', 30, 0.00],
   ['Outro', 'Servico a combinar', null, 0.00]
 ];
 
@@ -80,12 +81,74 @@ db.query('SELECT COUNT(*) AS total FROM servico', (err, results) => {
   );
 });
 
-function formatMotorcycle(row, req) {
+db.query(
+  'INSERT INTO servico (nome, descricao, duracaoestimada, preco, ativo) SELECT ?, ?, ?, ?, 1 WHERE NOT EXISTS (SELECT 1 FROM servico WHERE nome = ? LIMIT 1)',
+  ['Visitar mota ao stand', 'Agendamento para visitar uma mota no stand', 30, 0.00, 'Visitar mota ao stand'],
+  (err) => {
+    if (err) {
+      console.error('Erro ao garantir servico de visita ao stand:', err.message);
+    }
+  }
+);
+
+db.query(
+  'SELECT COUNT(*) AS total FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = "motas" AND COLUMN_NAME = "imagens"',
+  (columnErr, columns) => {
+    if (columnErr || columns[0].total > 0) {
+      if (columnErr) {
+        console.error('Erro ao verificar coluna de imagens das motas:', columnErr.message);
+      }
+      return;
+    }
+
+    db.query('ALTER TABLE motas ADD COLUMN imagens TEXT DEFAULT NULL', (alterErr) => {
+      if (alterErr) {
+        console.error('Erro ao garantir coluna de imagens das motas:', alterErr.message);
+      }
+    });
+  }
+);
+
+function normalizeStoredImage(rawImage, req) {
+  const image = String(rawImage || '').trim();
+
+  if (!image) {
+    return '';
+  }
+
+  if (image.startsWith('http')) {
+    return image;
+  }
+
   const baseUrl = `${req.protocol}://${req.get('host')}`;
-  const rawImage = row.imagem || '';
-  const image = rawImage.startsWith('http')
-    ? rawImage
-    : `${baseUrl}/${rawImage.replace(/\\/g, '/').replace(/^\/+/, '')}`;
+  return `${baseUrl}/${image.replace(/\\/g, '/').replace(/^\/+/, '')}`;
+}
+
+function parseMotorcycleImages(row, req) {
+  const images = [normalizeStoredImage(row.imagem, req)];
+  const extraImagesRaw = String(row.imagens || '').trim();
+
+  if (extraImagesRaw) {
+    let extraImages = [];
+
+    try {
+      const parsedImages = JSON.parse(extraImagesRaw);
+      if (Array.isArray(parsedImages)) {
+        extraImages = parsedImages;
+      }
+    } catch {
+      extraImages = extraImagesRaw.split(/\r?\n|,/);
+    }
+
+    images.push(...extraImages.map((image) => normalizeStoredImage(image, req)));
+  }
+
+  return Array.from(new Set(images.filter(Boolean)));
+}
+
+function formatMotorcycle(row, req) {
+  const images = parseMotorcycleImages(row, req);
+  const image = images[0] || DEFAULT_MOTORCYCLE_IMAGE;
 
   const extras = row.extras
     ? row.extras.split(',').map((extra) => extra.trim()).filter(Boolean)
@@ -122,7 +185,8 @@ function formatMotorcycle(row, req) {
     condition: row.quilometragem > 0 || row.horas > 0 ? 'Usada' : 'Nova',
     description: row.descricao || '',
     descricao: row.descricao || '',
-    images: [image],
+    imagens: row.imagens || '',
+    images,
     fuel: 'Gasolina',
     transmission: 'Manual',
     color: 'Nao especificada',
@@ -578,6 +642,7 @@ app.post('/api/admin/motorcycles', verifyAdmin, (req, res) => {
   const marca = (req.body.marca || '').trim();
   const modelo = (req.body.modelo || '').trim();
   const imagem = (req.body.imagem || req.body.image || '').trim();
+  const imagens = (req.body.imagens || req.body.imagesText || '').trim();
   const tipo = (req.body.tipo || req.body.category || '').trim();
   const extras = (req.body.extras || '').trim();
   const descricao = (req.body.descricao || req.body.description || '').trim();
@@ -593,13 +658,13 @@ app.post('/api/admin/motorcycles', verifyAdmin, (req, res) => {
   }
 
   const sql = `
-    INSERT INTO motas (marca, modelo, ano, preco, imagem, tipo, cilindrada, potencia, quilometragem, horas, extras, descricao)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO motas (marca, modelo, ano, preco, imagem, imagens, tipo, cilindrada, potencia, quilometragem, horas, extras, descricao)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   db.query(
     sql,
-    [marca, modelo, ano, preco, imagem, tipo, cilindrada, potencia, quilometragem, horas, extras, descricao],
+    [marca, modelo, ano, preco, imagem, imagens, tipo, cilindrada, potencia, quilometragem, horas, extras, descricao],
     (err, result) => {
       if (err) {
         return res.status(500).json({ message: 'Erro ao criar mota.' });
@@ -620,6 +685,7 @@ app.put('/api/admin/motorcycles/:id', verifyAdmin, (req, res) => {
   const marca = (req.body.marca || '').trim();
   const modelo = (req.body.modelo || '').trim();
   const imagem = (req.body.imagem || req.body.image || DEFAULT_MOTORCYCLE_IMAGE).trim();
+  const imagens = (req.body.imagens || req.body.imagesText || '').trim();
   const tipo = (req.body.tipo || req.body.category || '').trim();
   const extras = (req.body.extras || '').trim();
   const descricao = (req.body.descricao || req.body.description || '').trim();
@@ -636,14 +702,14 @@ app.put('/api/admin/motorcycles/:id', verifyAdmin, (req, res) => {
 
   const sql = `
     UPDATE motas
-    SET marca = ?, modelo = ?, ano = ?, preco = ?, imagem = ?, tipo = ?, cilindrada = ?,
+    SET marca = ?, modelo = ?, ano = ?, preco = ?, imagem = ?, imagens = ?, tipo = ?, cilindrada = ?,
         potencia = ?, quilometragem = ?, horas = ?, extras = ?, descricao = ?
     WHERE id = ?
   `;
 
   db.query(
     sql,
-    [marca, modelo, ano, preco, imagem, tipo, cilindrada, potencia, quilometragem, horas, extras, descricao, req.params.id],
+    [marca, modelo, ano, preco, imagem, imagens, tipo, cilindrada, potencia, quilometragem, horas, extras, descricao, req.params.id],
     (err, result) => {
       if (err) {
         return res.status(500).json({ message: 'Erro ao atualizar mota.' });
@@ -892,21 +958,72 @@ app.get('/api/marcacoes', (req, res) => {
 app.patch('/api/marcacoes/:id/status', (req, res) => {
   const status = toDbStatus(req.body.status);
 
-  db.query(
-    'UPDATE marcacao SET estado = ? WHERE idmarcacao = ?',
-    [status, req.params.id],
-    (err, result) => {
-      if (err) {
-        return res.status(500).json({ message: 'Erro ao atualizar marcacao.' });
-      }
+  const bookingSql = `
+    SELECT
+      m.idmarcacao,
+      m.estado,
+      m.motas_cliente,
+      c.nome,
+      u.email,
+      v.modelo,
+      s.nome AS servico_nome
+    FROM marcacao m
+    INNER JOIN cliente c ON c.idcliente = m.idcliente
+    LEFT JOIN utilizador u ON u.idutilizador = c.idutilizador
+    INNER JOIN veiculo_cliente v ON v.idveiculo = m.idveiculo
+    INNER JOIN marcacao_servico ms ON ms.idmarcacao = m.idmarcacao
+    INNER JOIN servico s ON s.idservico = ms.idservico
+    WHERE m.idmarcacao = ?
+    LIMIT 1
+  `;
 
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ message: 'Marcacao nao encontrada.' });
-      }
-
-      res.json({ message: 'Marcacao atualizada.' });
+  db.query(bookingSql, [req.params.id], (bookingErr, bookings) => {
+    if (bookingErr) {
+      return res.status(500).json({ message: 'Erro ao procurar marcacao.' });
     }
-  );
+
+    if (bookings.length === 0) {
+      return res.status(404).json({ message: 'Marcacao nao encontrada.' });
+    }
+
+    const booking = bookings[0];
+    const wasAlreadyCompleted = booking.estado === 'concluido';
+
+    db.query(
+      'UPDATE marcacao SET estado = ? WHERE idmarcacao = ?',
+      [status, req.params.id],
+      async (err, result) => {
+        if (err) {
+          return res.status(500).json({ message: 'Erro ao atualizar marcacao.' });
+        }
+
+        if (result.affectedRows === 0) {
+          return res.status(404).json({ message: 'Marcacao nao encontrada.' });
+        }
+
+        if (status === 'concluido' && !wasAlreadyCompleted && booking.email) {
+          try {
+            await sendBookingCompletedEmail(booking.email, booking.nome, {
+              serviceName: booking.servico_nome,
+              vehicle: booking.motas_cliente || booking.modelo
+            });
+          } catch (emailErr) {
+            console.error('Erro ao enviar email de conclusao:', emailErr.message);
+
+            return res.json({
+              message: 'Marcacao atualizada, mas houve erro ao enviar o email.',
+              emailSent: false
+            });
+          }
+        }
+
+        res.json({
+          message: 'Marcacao atualizada.',
+          emailSent: status === 'concluido' && !wasAlreadyCompleted && Boolean(booking.email)
+        });
+      }
+    );
+  });
 });
 
 app.delete('/api/marcacoes/:id', (req, res) => {

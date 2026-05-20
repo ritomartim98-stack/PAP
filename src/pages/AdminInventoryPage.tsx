@@ -32,6 +32,7 @@ interface Motorcycle {
   ano: number;
   preco: number;
   imagem: string;
+  imagens?: string;
   cilindrada: number;
   potencia: number;
   quilometragem: number;
@@ -60,6 +61,7 @@ const emptyMotorcycle = {
   ano: new Date().getFullYear(),
   preco: 0,
   imagem: "",
+  imagens: "",
   cilindrada: 0,
   potencia: 0,
   quilometragem: 0,
@@ -92,6 +94,15 @@ function normalizeImagePath(image: string) {
   }
 
   return `uploads/${trimmedImage}`;
+}
+
+function normalizeImageList(images: string) {
+  return images
+    .split(/\r?\n|,/)
+    .map((image) => image.trim())
+    .filter(Boolean)
+    .map((image) => normalizeImagePath(image))
+    .join("\n");
 }
 
 export function AdminInventoryPage({ onNavigate }: AdminInventoryPageProps) {
@@ -166,6 +177,7 @@ export function AdminInventoryPage({ onNavigate }: AdminInventoryPageProps) {
       ano: motorcycle.ano || new Date().getFullYear(),
       preco: motorcycle.preco || 0,
       imagem: motorcycle.imagem || "",
+      imagens: motorcycle.imagens || "",
       cilindrada: motorcycle.cilindrada || 0,
       potencia: motorcycle.potencia || 0,
       quilometragem: motorcycle.quilometragem || 0,
@@ -193,7 +205,8 @@ export function AdminInventoryPage({ onNavigate }: AdminInventoryPageProps) {
     setSaving(true);
     const payload = {
       ...motorcycleForm,
-      imagem: normalizeImagePath(motorcycleForm.imagem)
+      imagem: normalizeImagePath(motorcycleForm.imagem),
+      imagens: normalizeImageList(motorcycleForm.imagens || "")
     };
 
     const url = editingMotorcycleId
@@ -305,7 +318,7 @@ export function AdminInventoryPage({ onNavigate }: AdminInventoryPageProps) {
             </div>
             <div className="flex flex-wrap gap-2">
               <Button variant="secondary" onClick={() => onNavigate("admin-bookings")}>
-                Marcacoes
+                Marcações
               </Button>
               <Button variant="outline" onClick={() => onNavigate("home")}>
                 Voltar ao site
@@ -358,6 +371,16 @@ export function AdminInventoryPage({ onNavigate }: AdminInventoryPageProps) {
                       <FormInput label="Preco" type="number" value={motorcycleForm.preco} onChange={(value) => setMotorcycleForm({ ...motorcycleForm, preco: Number(value) })} />
                     </div>
                     <FormInput label="Imagem" placeholder="uploads/mota.jpg ou https://..." value={motorcycleForm.imagem} onChange={(value) => setMotorcycleForm({ ...motorcycleForm, imagem: value })} />
+                    <div className="space-y-2">
+                      <Label>Imagens adicionais</Label>
+                      <Textarea
+                        value={motorcycleForm.imagens}
+                        onChange={(event) => setMotorcycleForm({ ...motorcycleForm, imagens: event.target.value })}
+                        placeholder={"uploads/mota-lado.jpg\nuploads/mota-frente.jpg\nhttps://..."}
+                        rows={4}
+                      />
+                      <p className="text-xs text-gray-500">Coloque uma imagem por linha. A imagem principal aparece sempre primeiro.</p>
+                    </div>
                     <div className="grid grid-cols-2 gap-3">
                       <FormInput label="Cilindrada" type="number" value={motorcycleForm.cilindrada} onChange={(value) => setMotorcycleForm({ ...motorcycleForm, cilindrada: Number(value) })} />
                       <FormInput label="Potencia" type="number" value={motorcycleForm.potencia} onChange={(value) => setMotorcycleForm({ ...motorcycleForm, potencia: Number(value) })} />
